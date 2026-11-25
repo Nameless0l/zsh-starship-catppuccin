@@ -36,4 +36,6 @@ jobs:
           - { script: desktop, image: "ubuntu:26.04", mode: sudo }
     steps:
       - uses: actions/checkout@v7
-      - run: docker run --rm -v "$PWD:/repo:ro" "${{ matrix.image }}" bash /repo/tests/container.sh "${{ matrix.script }}" "${{ matrix.mode }}"
+      - run: docker run --rm -e GITHUB_TOKEN -v "$PWD:/repo:ro" "${{ matrix.image }}" bash /repo/tests/container.sh "${{ matrix.script }}" "${{ matrix.mode }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

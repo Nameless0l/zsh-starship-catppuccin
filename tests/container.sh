@@ -41,7 +41,8 @@ if [ "$flavor" = desktop ]; then
 fi
 
 home="$(getent passwd "$user" | cut -d: -f6)"
-as_user() { su - "$user" -c "export DEBIAN_FRONTEND=noninteractive; $1"; }
+# GITHUB_TOKEN, when the CI passes one, lifts the GitHub API rate limit
+as_user() { su - "$user" -w GITHUB_TOKEN -c "export DEBIAN_FRONTEND=noninteractive; $1"; }
 
 # Seed an old zsh history to check the one-time atuin import
 as_user "printf ': 1700000000:0;echo history-from-zsh\n' > ~/.zsh_history"

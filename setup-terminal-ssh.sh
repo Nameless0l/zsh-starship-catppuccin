@@ -48,17 +48,37 @@ installer() {
 }
 
 # Fichier $2 de la dernière release du dépôt GitHub $1, écrit dans $3 seulement si son empreinte
-# correspond à celle que GitHub publie. VERSION dans $2 devient le numéro de version.
+# correspond à celle publiée. VERSION dans $2 devient le numéro de version.
 release_github() {
-  local json tag nom attendu
-  json="$(curl -fsSL "https://api.github.com/repos/$1/releases/latest")" || return 1
-  tag="$(printf '%s\n' "$json" | sed -n 's/^  "tag_name": "\(.*\)",$/\1/p')"
+  local tag nom attendu somme
+  local auth=()
+  tag="$(curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$1/releases/latest")" || return 1
+  tag="${tag##*/releases/tag/}"
+  case "$tag" in
+    "" | */*) return 1 ;;
+  esac
   RELEASE_VERSION="${tag#v}"
   nom="${2//VERSION/$RELEASE_VERSION}"
-  attendu="$(printf '%s\n' "$json" | awk -v ligne="\"name\": \"$nom\"," '
-    index($0, ligne) { vu = 1 }
-    vu && /"digest": "sha256:/ { sub(/.*sha256:/, ""); sub(/".*/, ""); print; exit }')"
-  if [ -z "$tag" ] || [ -z "$attendu" ]; then
+  attendu=""
+  for somme in "$nom.sha256" checksums.txt; do
+    attendu="$(curl -fsSL "https://github.com/$1/releases/download/$tag/$somme" 2>/dev/null \
+      | awk -v n="$nom" '$2 == n || $2 == "*" n { print $1; exit }')"
+    if [ -n "$attendu" ]; then
+      break
+    fi
+  done
+  if [ -z "$attendu" ]; then
+    # Sans fichier d'empreintes dans la release : celle que GitHub calcule, lue dans son API
+    # (60 requêtes par heure sans GITHUB_TOKEN)
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+      auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
+    fi
+    attendu="$(curl -fsSL "${auth[@]}" "https://api.github.com/repos/$1/releases/tags/$tag" \
+      | awk -v ligne="\"name\": \"$nom\"," '
+        index($0, ligne) { vu = 1 }
+        vu && !fait && /"digest": "sha256:/ { sub(/.*sha256:/, ""); sub(/".*/, ""); print; fait = 1 }')"
+  fi
+  if [ -z "$attendu" ]; then
     return 1
   fi
   curl -fsSL -o "$3" "https://github.com/$1/releases/download/$tag/$nom" || return 1
