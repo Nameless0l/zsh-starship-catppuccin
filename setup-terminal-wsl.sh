@@ -2,11 +2,11 @@
 # Config terminal pour WSL (Ubuntu sous Windows) : zsh, Starship, outils.
 # Rien de graphique : pas d'extension GNOME, pas de police, pas de réglage Ptyxis.
 # Usage : bash setup-terminal-wsl.sh (sans sudo, il le demande quand il en a besoin)
-# Sans droits sudo, les paquets sont sautés et le reste s'installe dans ton dossier personnel.
+# Sans droits sudo, les paquets sont sautés et le reste s'installe dans le dossier personnel.
 # Relançable sans risque : chaque fichier remplacé est d'abord sauvegardé en .bak daté.
 
 if [ "$(id -u)" -eq 0 ]; then
-  echo "Lance ce script sans sudo."
+  echo "À lancer sans sudo."
   exit 1
 fi
 
@@ -284,7 +284,7 @@ if command -v tmux >/dev/null 2>&1; then
   fi
   installer config/tmux.conf "$HOME/.config/tmux/tmux.conf"
   if [ -f "$HOME/.tmux.conf" ]; then
-    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : renomme-le pour avoir le thème"
+    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : le renommer pour avoir le thème"
   fi
 else
   echo "[..] tmux absent, config tmux sautée"
@@ -354,7 +354,7 @@ if [ "$(basename "$SHELL")" != "zsh" ]; then
 fi
 
 titre "Terminé"
-echo "Ferme cette fenêtre WSL et rouvre-la pour arriver dans zsh."
+echo "Fermer cette fenêtre WSL puis la rouvrir pour arriver dans zsh."
 echo "Les icônes du prompt viennent de la police de Windows, pas de WSL. Si elle manque, dans PowerShell :"
 echo "  winget install -e --id DEVCOM.JetBrainsMonoNerdFont"
 if [ "$WT_MANUEL" -eq 1 ]; then
@@ -362,5 +362,5 @@ if [ "$WT_MANUEL" -eq 1 ]; then
 fi
 echo "À essayer : t ouvre tmux, Ctrl+R cherche dans l'historique (atuin), tldr tar donne des exemples."
 if [ ! -f "$HOME/.zshrc.local" ]; then
-  echo "Tes alias et fonctions perso vont dans ~/.zshrc.local : le script ne le touche jamais."
+  echo "Les alias et fonctions personnels vont dans ~/.zshrc.local : le script ne le touche jamais."
 fi

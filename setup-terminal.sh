@@ -4,7 +4,7 @@
 # Relançable sans risque : chaque fichier remplacé est d'abord sauvegardé en .bak daté.
 
 if [ "$(id -u)" -eq 0 ]; then
-  echo "Lance ce script sans sudo."
+  echo "À lancer sans sudo."
   exit 1
 fi
 
@@ -276,7 +276,7 @@ if command -v tmux >/dev/null 2>&1; then
   fi
   installer config/tmux.conf "$HOME/.config/tmux/tmux.conf"
   if [ -f "$HOME/.tmux.conf" ]; then
-    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : renomme-le pour avoir le thème"
+    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : le renommer pour avoir le thème"
   fi
 else
   echo "[..] tmux absent, config tmux sautée"
@@ -392,7 +392,7 @@ def install(uuid):
     if presente(uuid):
         print(f"[ok] déjà installée : {uuid}")
         return
-    print(f"[..] {uuid} : clique sur Installer dans la fenêtre qui s'ouvre")
+    print(f"[..] {uuid} : cliquer sur Installer dans la fenêtre qui s'ouvre")
     r = run("gdbus", "call", "--session", "--timeout", "300",
             "--dest", "org.gnome.Shell.Extensions",
             "--object-path", "/org/gnome/Shell/Extensions",
@@ -540,14 +540,14 @@ else
 fi
 
 titre "Terminé"
-echo "Ferme ta session et reconnecte-toi, puis ouvre un terminal."
+echo "Fermer la session, se reconnecter, puis ouvrir un terminal."
 if [ "$POLICE_MANUELLE" -eq 1 ]; then
-  echo "Choisis la police $NERD_FONT Nerd Font dans les préférences de Ptyxis."
+  echo "Choisir la police $NERD_FONT Nerd Font dans les préférences de Ptyxis."
 fi
 if [ "$PALETTE_MANUELLE" -eq 1 ]; then
-  echo "Ouvre Ptyxis une fois puis relance le script, ou choisis la palette $PALETTE_NOM dans ses préférences (Apparence)."
+  echo "Ouvrir Ptyxis une fois puis relancer le script, ou choisir la palette $PALETTE_NOM dans ses préférences (Apparence)."
 fi
 echo "À essayer : t ouvre tmux, Ctrl+R cherche dans l'historique (atuin), tldr tar donne des exemples."
 if [ ! -f "$HOME/.zshrc.local" ]; then
-  echo "Tes alias et fonctions perso vont dans ~/.zshrc.local : le script ne le touche jamais."
+  echo "Les alias et fonctions personnels vont dans ~/.zshrc.local : le script ne le touche jamais."
 fi

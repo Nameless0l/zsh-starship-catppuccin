@@ -2,7 +2,7 @@
 # Config terminal pour une machine sans écran, atteinte en SSH : zsh, Starship, outils.
 # Rien de graphique : pas d'extension GNOME, pas de police, pas de réglage Ptyxis.
 # Usage : bash setup-terminal-ssh.sh (sans sudo, il le demande quand il en a besoin ; en root, il s'en passe)
-# Sans droits sudo, les paquets sont sautés et le reste s'installe dans ton dossier personnel.
+# Sans droits sudo, les paquets sont sautés et le reste s'installe dans le dossier personnel.
 # Relançable sans risque : chaque fichier remplacé est d'abord sauvegardé en .bak daté.
 
 # En root (carte embarquée, conteneur, serveur minimal), sudo n'est pas nécessaire
@@ -225,7 +225,7 @@ if command -v tmux >/dev/null 2>&1; then
   fi
   installer config/tmux.conf "$HOME/.config/tmux/tmux.conf"
   if [ -f "$HOME/.tmux.conf" ]; then
-    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : renomme-le pour avoir le thème"
+    echo "[..] ~/.tmux.conf existe et passe devant ~/.config/tmux/tmux.conf : le renommer pour avoir le thème"
   fi
 else
   echo "[..] tmux absent, config tmux sautée"
@@ -295,10 +295,10 @@ if [ "$(basename "$SHELL")" != "zsh" ]; then
 fi
 
 titre "Terminé"
-echo "Déconnecte-toi puis reconnecte-toi en SSH pour arriver dans zsh."
-echo "Les icônes du prompt viennent de la police du terminal depuis lequel tu te connectes :"
-echo "installe une Nerd Font sur cette machine-là, pas ici."
+echo "Se déconnecter puis se reconnecter en SSH pour arriver dans zsh."
+echo "Les icônes du prompt viennent de la police du terminal depuis lequel on se connecte :"
+echo "la Nerd Font s'installe sur cette machine-là, pas ici."
 echo "À essayer : t ouvre tmux, Ctrl+R cherche dans l'historique (atuin), tldr tar donne des exemples."
 if [ ! -f "$HOME/.zshrc.local" ]; then
-  echo "Tes alias et fonctions perso vont dans ~/.zshrc.local : le script ne le touche jamais."
+  echo "Les alias et fonctions personnels vont dans ~/.zshrc.local : le script ne le touche jamais."
 fi
