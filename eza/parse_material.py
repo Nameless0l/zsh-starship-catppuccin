@@ -1,40 +1,86 @@
 """Lit le mapping de Material Icon Theme (fichiers .ts traités comme données).
 
-Usage : python3 -I parse_material.py <dossier_des_.ts> <sortie.json>
+Usage : python3 -I parse_material.py <racine du dépôt Material> <sortie.json>
 """
-import json, re, sys
+import json
+import re
+import sys
 
-def entries(ts):
-    # Découpe sur chaque "name: '...'" et lit les tableaux qui suivent jusqu'au prochain name
-    parts = re.split(r"\{\s*name:\s*'", ts)[1:]
+# Motifs de noms de Material, réduits aux variantes courantes : le thème reste léger,
+# et une variante rare garde l'icône de son extension
+MOTIFS = {
+    "ecmascript": ["{}.js", "{}.mjs", "{}.cjs", "{}.ts"],
+    "configuration": ["{}.json", "{}.yaml", "{}.yml", "{}.toml"],
+    "yaml": ["{}.yaml", "{}.yml"],
+    "dotfile": [".{}", "{}"],
+}
+MOTIFS["nodeEcosystem"] = MOTIFS["ecmascript"] + MOTIFS["configuration"]
+MOTIFS["cosmiconfig"] = (
+    [".{}rc"] + [".{}rc." + e for e in ("json", "yaml", "yml", "js", "cjs")]
+    + ["{}.config." + e for e in ("js", "mjs", "cjs", "ts")]
+)
+
+
+def chaines(texte):
+    return re.findall(r"'([^']*)'", texte)
+
+
+def tableau(corps, cle):
+    m = re.search(r"\b" + cle + r"\s*:\s*\[(.*?)\]", corps, re.S)
+    return chaines(m.group(1)) if m else []
+
+
+def entrees(ts):
+    # Chaque icône commence par "{ name: '...'" ; son corps va jusqu'à la suivante
+    morceaux = re.split(r"\{\s*name:\s*'", ts)[1:]
     out = []
-    for p in parts:
-        name = p.split("'", 1)[0]
-        body = p.split("'", 1)[1]
-        body = re.split(r"\{\s*name:\s*'", body)[0]
-        def arr(key):
-            m = re.search(key + r"\s*:\s*\[(.*?)\]", body, re.S)
-            return re.findall(r"'([^']*)'", m.group(1)) if m else []
-        out.append({"name": name, "ext": arr("fileExtensions"), "files": arr("fileNames"),
-                    "folders": arr("folderNames"), "clone": "clone" in body})
+    for p in morceaux:
+        nom, corps = p.split("'", 1)
+        noms = tableau(corps, "fileNames")
+        m = re.search(r"patterns\s*:\s*\{(.*?)\}", corps, re.S)
+        if m:
+            for cle, motif in re.findall(r"'?([\w.@/-]+)'?\s*:\s*FileNamePattern\.(\w+)", m.group(1)):
+                noms += [g.format(cle) for g in MOTIFS[motif[0].lower() + motif[1:]]]
+        clone = re.search(r"clone\s*:\s*\{\s*base\s*:\s*'([^']+)'\s*,\s*color\s*:\s*'([^']+)'", corps)
+        out.append({
+            "name": nom,
+            "ext": tableau(corps, "fileExtensions"),
+            "files": noms,
+            "folders": tableau(corps, "folderNames"),
+            "pack": "enabledFor" in corps,
+            "clone": clone.groups() if clone else None,
+        })
     return out
 
-ref, sortie = sys.argv[1], sys.argv[2]
-fi = entries(open(f"{ref}/fileIcons.ts").read())
-fo = entries(open(f"{ref}/folderIcons.ts").read())
-ext, files, folders, clones = {}, {}, {}, set()
-for e in fi:
-    for x in e["ext"]:
-        ext.setdefault(x.lower(), e["name"])
-    for f in e["files"]:
-        files.setdefault(f, e["name"])
-    if e["clone"]:
-        clones.add(e["name"])
-for e in fo:
-    for f in e["folders"]:
-        folders.setdefault(f, e["name"])
-    if e["clone"]:
-        clones.add(e["name"])
-json.dump({"ext": ext, "files": files, "folders": folders, "clones": sorted(clones)},
-          open(sortie, "w"), indent=1)
-print(len(ext), "extensions,", len(files), "noms de fichiers,", len(folders), "dossiers,", len(clones), "clones")
+
+def main():
+    racine, sortie = sys.argv[1], sys.argv[2]
+    fi = entrees(open(f"{racine}/src/core/icons/fileIcons.ts", encoding="utf-8").read())
+    dossiers = open(f"{racine}/src/core/icons/folderIcons.ts", encoding="utf-8").read()
+    # Seul le thème de dossiers par défaut ("specific") nous intéresse
+    dossiers = dossiers.split("name: 'classic'")[0]
+    fo = entrees(dossiers)
+    palette = dict(re.findall(r"'?([\w-]+)'?\s*:\s*'(#[0-9A-Fa-f]{6})'",
+                              open(f"{racine}/src/core/generator/clones/utils/color/materialPalette.ts",
+                                   encoding="utf-8").read()))
+
+    ext, files, folders, clones = {}, {}, {}, {}
+    for e in fi + fo:
+        if e["pack"]:
+            continue
+        if e["clone"]:
+            base, coul = e["clone"]
+            clones[e["name"]] = {"base": base, "color": palette.get(coul, coul if coul.startswith("#") else None)}
+        for x in e["ext"]:
+            ext.setdefault(x.lower(), e["name"])
+        for f in e["files"]:
+            files.setdefault(f.lower(), e["name"])
+        for f in e["folders"]:
+            folders.setdefault(f.lower(), e["name"])
+    json.dump({"ext": ext, "files": files, "folders": folders, "clones": clones},
+              open(sortie, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+    print(len(ext), "extensions,", len(files), "noms de fichiers,", len(folders), "dossiers,", len(clones), "clones")
+
+
+if __name__ == "__main__":
+    main()

@@ -86,9 +86,11 @@ Then open a new terminal. Icons need a **Nerd Font** in the terminal you are loo
 
 ### eza icons like the VS Code Material Icon Theme
 
-`eza/theme.yml` gives 143 file extensions, 49 file names and 80 folder names their own icon, colored with the exact colors of the VS Code **Material Icon Theme** (read from its SVG files). Glyphs come from the Material Design set of Nerd Fonts. Folders are colored by name like in VS Code: `src`, `docs`, `tests`, `.git`, `node_modules`, `Downloads`, French home folders, and more. Yocto files (`.bb`, `.bbappend`, `local.conf`) and device trees (`.dts`) are covered too.
+`eza/theme.yml` follows the whole mapping of the VS Code **Material Icon Theme**: about 1,200 file extensions and 3,800 file and folder names, spread over 820 Material icons, each with the exact color of its icon (read from its SVG file). Config files are recognized by name (`vite.config.ts`, `.prettierrc`, `Cargo.toml`, `docker-compose.yml`, `.pre-commit-config.yaml`...), and folders are colored by name like in VS Code (`src`, `docs`, `tests`, `.github`, `node_modules`, `migrations`, `Downloads`, French home folders...). Yocto files (`.bb`, `.bbappend`, `local.conf`) and device trees (`.dts`, `.dtb`) are covered too.
 
-A terminal can only show single-color font glyphs, so the icons are not the VS Code SVGs themselves, but the result is close. It needs **eza 0.20 or newer**: the scripts install it from the official eza repository (deb.gierens.de) when Ubuntu ships an older version, as Ubuntu 24.04 does.
+Glyphs come from Nerd Fonts, Material Design set first, then Devicons and Seti for brands Material Design lacks. When no glyph fits a Material icon (about 160 of them), eza keeps its own icon and takes the Material color. A terminal can only show single-color font glyphs, so the icons are not the VS Code SVGs themselves, but the result is close.
+
+eza reads the theme on every call: `ls` takes about 15 ms with it instead of 2 ms, which you will not notice. It needs **eza 0.20 or newer**: the scripts install it from the official eza repository (deb.gierens.de) when Ubuntu ships an older version, as Ubuntu 24.04 does. They copy `eza/theme.yml` from the clone they run from, or download it from this repository.
 
 To use only the theme:
 
