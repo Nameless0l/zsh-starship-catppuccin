@@ -561,7 +561,13 @@ if command -v fdfind >/dev/null; then
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
   export FZF_ALT_C_COMMAND='fdfind --type d --hidden --follow --exclude .git'
 fi
-command -v fzf >/dev/null && source <(fzf --zsh)
+if command -v fzf >/dev/null; then
+  if fzf --zsh >/dev/null 2>&1; then
+    source <(fzf --zsh)                                    # fzf récent
+  elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.zsh    # fzf ancien
+  fi
+fi
 
 # fzf-tab : Tab ouvre fzf, avec aperçu du contenu des dossiers
 # (chargé après fzf pour être le dernier à prendre la touche Tab)
@@ -822,11 +828,15 @@ if [ -f "$BTOP_THEME" ]; then
   echo "[ok] btop : thème catppuccin_mocha"
 fi
 
-git config --global core.pager delta
-git config --global interactive.diffFilter 'delta --color-only'
-git config --global delta.navigate true
-git config --global delta.line-numbers true
-git config --global merge.conflictStyle zdiff3
+if command -v delta >/dev/null 2>&1; then
+  git config --global core.pager delta
+  git config --global interactive.diffFilter 'delta --color-only'
+  git config --global delta.navigate true
+  git config --global delta.line-numbers true
+  git config --global merge.conflictStyle zdiff3
+else
+  echo "[..] delta absent, config git inchangée"
+fi
 
 # ---------- Shell par défaut ----------
 titre "Shell par défaut"
