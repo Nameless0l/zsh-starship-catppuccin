@@ -37,6 +37,7 @@ if has zsh; then
   if has zoxide; then
     # zoxide defines cd as an alias or a function depending on its version
     if [ "$(zsh_i 'whence -w cd')" != "cd: builtin" ]; then pass "cd goes through zoxide"; else fail "cd is still the builtin"; fi
+    check "$(zsh_i 'zstyle -s ":fzf-tab:complete:__zoxide_z:argument-1" fzf-preview p && echo set')" "set" "Tab after cd previews folders"
   fi
   if has tmux; then
     check "$(zsh_i 'whence -w t')" "t: alias" "t alias for tmux"

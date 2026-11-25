@@ -110,7 +110,8 @@ if [ -f ~/.zsh/fzf-tab/fzf-tab.plugin.zsh ]; then
   zstyle ':completion:*:descriptions' format '[%d]'
   zstyle ':fzf-tab:*' fzf-flags --color=$_fzf_colors
   zstyle ':fzf-tab:*' switch-group '<' '>'
-  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'LS_COLORS= eza -1 --icons --color=always $realpath'
+  # __zoxide_z : ce que devient cd une fois remplacé par zoxide
+  zstyle ':fzf-tab:complete:(cd|__zoxide_z):*' fzf-preview 'LS_COLORS= eza -1 --icons --color=always $realpath'
 else
   zstyle ':completion:*' menu select                        # Tab ouvre un menu navigable
   zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
