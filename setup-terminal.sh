@@ -606,7 +606,7 @@ if [ "$POLICE_MANUELLE" -eq 1 ]; then
   echo "Choisir la police $NERD_FONT Nerd Font dans les préférences de Ptyxis."
 fi
 if [ "$PALETTE_MANUELLE" -eq 1 ]; then
-  echo "Ouvrir Ptyxis une fois puis relancer le script, ou choisir la palette $PALETTE_NOM dans ses préférences (Apparence)."
+  echo "Choisir la palette $PALETTE_NOM dans les préférences de Ptyxis (Apparence)."
 fi
 echo "À essayer : t ouvre tmux, Ctrl+R cherche dans l'historique (atuin), tldr tar donne des exemples."
 if [ ! -f "$HOME/.zshrc.local" ]; then

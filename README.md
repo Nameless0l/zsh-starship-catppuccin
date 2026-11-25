@@ -50,7 +50,7 @@ Day-to-day use of every tool, with examples: **[user guide](docs/GUIDE.md)**.
 
 ### Terminal colors
 
-- **Ptyxis** (Ubuntu desktop): a `Catppuccin Mocha` palette is added to `~/.local/share/org.gnome.Ptyxis/palettes/` and applied to every existing profile, replacing Ubuntu's aubergine background. Open Ptyxis once before running the script on a brand-new install, so that a profile exists.
+- **Ptyxis** (Ubuntu desktop): a `Catppuccin Mocha` palette is added to `~/.local/share/org.gnome.Ptyxis/palettes/` and applied to every profile, replacing Ubuntu's aubergine background.
 - **Windows Terminal** (WSL): the official Catppuccin Mocha scheme is added and applied to the Ubuntu and WSL profiles.
 
 ### Starship prompt (Catppuccin Mocha)
