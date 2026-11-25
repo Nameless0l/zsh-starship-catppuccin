@@ -6,7 +6,7 @@ Trois versions de la même config :
 
 - `setup-terminal.sh` pour **Ubuntu avec bureau GNOME**, avec terminal déroulant et extensions GNOME au choix
 - `setup-terminal-wsl.sh` pour **WSL** (Ubuntu sous Windows, Windows Terminal)
-- `setup-terminal-ssh.sh` pour un **serveur sans écran** atteint en SSH, fonctionne même sans sudo
+- `setup-terminal-ssh.sh` pour un **serveur ou une carte** atteints en SSH (Ubuntu ou Debian), fonctionne avec ou sans sudo, et aussi en root
 
 Chaque script peut être relancé sans risque : tout fichier remplacé est d'abord sauvegardé en `fichier.bak-AAAAMMJJ-HHMMSS`.
 
@@ -14,7 +14,9 @@ Chaque script peut être relancé sans risque : tout fichier remplacé est d'abo
 
 ## Installation
 
-À lancer avec ton utilisateur normal, sans sudo : le script le demande quand il en a besoin.
+À lancer avec ton utilisateur normal, sans sudo : le script le demande quand il en a besoin. Le script SSH peut aussi tourner en root, par exemple sur une carte embarquée.
+
+Sur un système minimal sans `curl`, installe-le d'abord : `apt update && apt install -y curl` en root, ou avec `sudo`.
 
 Ubuntu avec GNOME :
 

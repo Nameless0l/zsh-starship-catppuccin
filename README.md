@@ -6,7 +6,7 @@ Three flavours of the same config:
 
 - `setup-terminal.sh` for **Ubuntu desktop (GNOME)**, with a drop-down terminal and optional GNOME extensions
 - `setup-terminal-wsl.sh` for **WSL** (Ubuntu on Windows, Windows Terminal)
-- `setup-terminal-ssh.sh` for **headless servers** reached over SSH, works without sudo
+- `setup-terminal-ssh.sh` for **headless servers and boards** reached over SSH (Ubuntu or Debian), works as a normal user with or without sudo, or as root
 
 Every script can be run again safely: each file it replaces is first saved as `file.bak-YYYYMMDD-HHMMSS`.
 
@@ -14,7 +14,9 @@ Every script can be run again safely: each file it replaces is first saved as `f
 
 ## Quick start
 
-Run as your normal user (not with sudo, the script asks for it when needed).
+Run as your normal user (not with sudo, the script asks for it when needed). The SSH script can also run as root, for example on an embedded board.
+
+On a minimal system without `curl`, install it first: `apt update && apt install -y curl` (as root) or with `sudo`.
 
 Ubuntu desktop (GNOME):
 

@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # Config terminal pour une machine sans écran, atteinte en SSH : zsh, Starship, outils.
 # Rien de graphique : pas d'extension GNOME, pas de police, pas de réglage Ptyxis.
-# Usage : bash setup-terminal-ssh.sh (sans sudo, il le demande quand il en a besoin)
+# Usage : bash setup-terminal-ssh.sh (sans sudo, il le demande quand il en a besoin ; en root, il s'en passe)
 # Sans droits sudo, les paquets sont sautés et le reste s'installe dans ton dossier personnel.
 # Relançable sans risque : chaque fichier remplacé est d'abord sauvegardé en .bak daté.
 
+# En root (carte embarquée, conteneur, serveur minimal), sudo n'est pas nécessaire
 if [ "$(id -u)" -eq 0 ]; then
-  echo "Lance ce script sans sudo."
-  exit 1
+  SUDO=""
+else
+  SUDO="sudo"
 fi
 
 titre() { printf '\n== %s ==\n' "$1"; }
@@ -21,8 +23,10 @@ sauvegarde() {
 # ---------- Paquets ----------
 titre "Paquets apt"
 SUDO_OK=0
-if command -v apt-get >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
-  if sudo -v; then
+if command -v apt-get >/dev/null 2>&1; then
+  if [ -z "$SUDO" ]; then
+    SUDO_OK=1
+  elif command -v sudo >/dev/null 2>&1 && sudo -v; then
     SUDO_OK=1
   fi
 fi
@@ -31,17 +35,17 @@ PAQUETS="git curl zsh zsh-autosuggestions zsh-syntax-highlighting fzf zoxide eza
 if [ "$SUDO_OK" -eq 1 ]; then
   if command -v add-apt-repository >/dev/null 2>&1; then
     for depot in universe multiverse; do
-      if ! sudo add-apt-repository -y "$depot"; then
+      if ! $SUDO add-apt-repository -y "$depot"; then
         echo "[!!] dépôt $depot non ajouté, à vérifier à la main"
       fi
     done
   fi
-  sudo apt-get update
+  $SUDO apt-get update
   for p in $PAQUETS; do
     if dpkg -s "$p" >/dev/null 2>&1; then
       continue
     fi
-    if ! sudo apt-get install -y "$p"; then
+    if ! $SUDO apt-get install -y "$p"; then
       echo "[!!] paquet indisponible : $p"
     fi
   done
@@ -101,14 +105,14 @@ v="$(eza_version)"
 if [ "${v%%.*}" -eq 0 ] && [ "${v#*.}" -lt 20 ]; then
   if [ "${SUDO_OK:-1}" -eq 1 ] && command -v apt-get >/dev/null 2>&1; then
     # Dépôt officiel d'eza (deb.gierens.de), plus récent que celui d'Ubuntu
-    sudo apt-get install -y gpg
-    sudo mkdir -p /etc/apt/keyrings
+    $SUDO apt-get install -y gpg
+    $SUDO mkdir -p /etc/apt/keyrings
     if curl -fsSL -o /tmp/eza-deb.asc https://raw.githubusercontent.com/eza-community/eza/main/deb.asc; then
-      sudo gpg --dearmor --yes -o /etc/apt/keyrings/gierens.gpg /tmp/eza-deb.asc
-      sudo sh -c 'echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" > /etc/apt/sources.list.d/gierens.list'
-      sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-      sudo apt-get update
-      sudo apt-get install -y eza
+      $SUDO gpg --dearmor --yes -o /etc/apt/keyrings/gierens.gpg /tmp/eza-deb.asc
+      $SUDO sh -c 'echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" > /etc/apt/sources.list.d/gierens.list'
+      $SUDO chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+      $SUDO apt-get update
+      $SUDO apt-get install -y eza
       echo "[ok] eza $(eza_version)"
     else
       echo "[!!] clé du dépôt eza non téléchargée, eza $v garde ses icônes par défaut"
