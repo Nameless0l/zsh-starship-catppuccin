@@ -1,0 +1,14 @@
+# atuin : historique des commandes dans une base, recherche avec Ctrl+R
+# Toutes les options : https://docs.atuin.sh/configuration/config/
+# Synchronisation entre machines (facultative, chiffrée) : atuin register, puis atuin login ailleurs
+
+style = "compact"
+inline_height = 20
+show_preview = true
+search_mode = "fuzzy"
+# Entrée remet la commande sur la ligne sans la lancer, comme Ctrl+R de fzf
+enter_accept = false
+update_check = false
+
+[theme]
+name = "catppuccin-mocha-mauve"

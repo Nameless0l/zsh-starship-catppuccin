@@ -1,6 +1,8 @@
 # Terminal Zsh + Starship pour Ubuntu, WSL et SSH (Catppuccin, icônes Material pour eza)
 
-Un script qui transforme un terminal Ubuntu neuf en poste de travail rapide et agréable : **Zsh**, un prompt **Starship** sur deux lignes aux couleurs **Catppuccin Mocha**, **fzf** partout, **zoxide** à la place de `cd`, des outils modernes (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**) et des icônes de fichiers qui ressemblent au **Material Icon Theme de VS Code**.
+[![test](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml/badge.svg)](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml)
+
+Un script qui transforme un terminal Ubuntu neuf en poste de travail rapide et agréable : **Zsh**, un prompt **Starship** sur deux lignes aux couleurs **Catppuccin Mocha**, **fzf** partout, **zoxide** à la place de `cd`, des outils modernes (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**, **tmux**, **atuin**, **tldr**) et des icônes de fichiers qui ressemblent au **Material Icon Theme de VS Code**.
 
 Trois versions de la même config :
 
@@ -48,7 +50,10 @@ Ouvre ensuite un nouveau terminal. Les icônes demandent une **Nerd Font** dans 
 - **Prompt Starship** sur deux lignes avec cadre, pastilles arrondies, statut git détaillé, versions des langages, durée des commandes, heure, pastille **Yocto** quand l'environnement BitBake est chargé, et **prompt transitoire** qui réduit les anciens prompts à `❯ commande`.
 - **Zsh** : historique de 100 000 lignes partagé et daté, suggestions grisées, coloration syntaxique, **fzf-tab** sur Tab, `cd` remplacé par zoxide (`cd doc` saute dans un dossier déjà visité, `cdi` pour choisir), `↑` et `↓` filtrés par ce que tu as tapé, raccourcis Ctrl+flèches, Ctrl+Retour arrière, Début et Fin, pages man en couleur.
 - **Outils** : `ls`, `ll`, `la`, `lt` avec eza, `cat` avec bat, `fd` et `rg` pour chercher, delta pour `git diff`, `lg` pour lazygit, btop au thème Catppuccin, nvtop, fastfetch, glow, hyperfine.
-- **fzf** : Ctrl+R pour l'historique, Ctrl+T pour un fichier avec aperçu, Alt+C pour un dossier avec arborescence.
+- **tmux** : `t` ouvre la session `main` ou la rejoint, elle survit donc à une coupure SSH. Barre Catppuccin en haut, souris, `Ctrl+B |` et `Ctrl+B -` pour couper dans le dossier courant, Alt+flèches pour changer de panneau.
+- **atuin** : l'historique dans une base locale, Ctrl+R pour y chercher (recherche floue, avec le dossier et le code de retour de chaque commande). L'historique zsh existant est importé une fois, et `↑` garde sa recherche par préfixe. Synchronisation chiffrée entre machines au choix : `atuin register`, puis `atuin login` sur les autres.
+- **tldr** (tealdeer) : `tldr tar` donne des exemples courts et concrets, pages gardées en cache pour marcher hors ligne, couleurs Catppuccin.
+- **fzf** : Ctrl+R pour l'historique quand atuin manque, Ctrl+T pour un fichier avec aperçu, Alt+C pour un dossier avec arborescence.
 - **Icônes eza façon VS Code** : le thème reprend tout le mapping du Material Icon Theme, soit environ 1 200 extensions et 3 800 noms de fichiers et de dossiers répartis sur 820 icônes, chacune avec sa couleur exacte. Les fichiers de config sont reconnus par leur nom (`vite.config.ts`, `.prettierrc`, `Cargo.toml`…) et les dossiers sont colorés selon leur nom, y compris les dossiers français (Téléchargements, Bureau, Images, Musique, Vidéos). Quand aucun glyphe Nerd Font ne correspond à une icône Material (environ 160), eza garde son icône avec la couleur Material. Avec le thème, `ls` prend environ 15 ms au lieu de 2 ms, ce qui ne se voit pas. Il faut eza 0.20 ou plus : le script l'installe depuis le dépôt officiel d'eza quand Ubuntu fournit une version plus ancienne.
 - **Extensions GNOME** (bureau seulement), réglables en haut de `setup-terminal.sh` : Quake Terminal sur Super+Entrée (`EXT_QUAKE`), Tiling Shell (`EXT_TILING`), Astra Monitor (`EXT_ASTRA`).
 
@@ -56,9 +61,25 @@ Tes alias et fonctions perso vont dans `~/.zshrc.local` : le script ne le touche
 
 Pour régénérer le thème d'icônes à partir de la dernière version de Material Icon Theme : `bash eza/build.sh`.
 
+## Fichiers de config
+
+Les trois scripts partagent les mêmes fichiers dans `config/` : `zshrc`, `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` et `tealdeer.toml`, plus `eza/theme.yml`. Ils les copient depuis le clone d'où ils sont lancés, ou les téléchargent depuis ce dépôt quand ils passent par `curl`. Un fichier installé n'est sauvegardé puis remplacé que si son contenu a changé.
+
+## Tests
+
+À chaque push, `tests/lint.sh` vérifie la syntaxe bash et zsh, shellcheck et les fichiers TOML, puis chaque script tourne deux fois dans un conteneur neuf : le script SSH sur Ubuntu 24.04 et Debian 12 en root et sur Ubuntu 24.04 sans sudo, le script WSL sur Ubuntu 24.04 et le script bureau sur Ubuntu 26.04 avec sudo. `tests/check.sh` contrôle ensuite les fichiers installés, les raccourcis zsh, le thème eza, tmux, atuin et tldr, et que le second passage n'a rien changé. Les mêmes tests repassent chaque lundi, car les scripts prennent la dernière version de plusieurs outils.
+
+Pour en lancer un en local :
+
+```bash
+docker run --rm -v "$PWD:/repo:ro" ubuntu:24.04 bash /repo/tests/container.sh ssh root
+```
+
 ## Revenir en arrière
 
 Chaque fichier remplacé a une copie `.bak-...` datée à côté de lui. Il suffit de la remettre en place. Pour revenir à bash : `chsh -s /bin/bash`.
+
+Si tmux garde son ancien look, c'est qu'un `~/.tmux.conf` passe devant `~/.config/tmux/tmux.conf` : renomme-le puis lance `tmux kill-server`. Pour retrouver la recherche d'historique de fzf sur Ctrl+R, supprime atuin : `rm ~/.local/bin/atuin`.
 
 ## Licence
 

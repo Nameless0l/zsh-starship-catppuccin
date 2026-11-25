@@ -1,0 +1,160 @@
+# ==================== PATH ====================
+# En premier, pour que starship et les autres outils soient trouvés
+typeset -U path PATH                      # pas de doublons dans le PATH
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+# ==================== Historique ====================
+HISTFILE=~/.zsh_history
+HISTSIZE=100000
+SAVEHIST=100000
+setopt share_history                      # partagé entre tous les terminaux
+setopt extended_history                   # garde la date de chaque commande
+setopt hist_ignore_all_dups               # supprime aussi les doublons non consécutifs
+setopt hist_ignore_space                  # " commande" n'est pas enregistrée
+setopt hist_reduce_blanks
+setopt hist_verify                        # !! et !$ s'affichent avant d'être exécutés
+
+# ==================== Options du shell ====================
+setopt interactive_comments               # pour les tags "# montag"
+setopt auto_cd                            # taper un dossier (ou ..) suffit pour y aller
+setopt auto_pushd pushd_ignore_dups       # cd -<Tab> pour revenir en arrière
+unsetopt flow_control                     # libère Ctrl+S
+
+# ==================== Complétion ====================
+fpath=(~/.zfunc $fpath)
+autoload -Uz compinit
+compinit
+
+eval "$(dircolors -b)"
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'   # insensible à la casse
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}       # mêmes couleurs que ls
+zstyle ':completion:*' group-name ''                        # résultats groupés par type
+
+# ==================== Clavier ====================
+bindkey -e                                # mode emacs, même si EDITOR=vim
+bindkey '^[[1;5C' forward-word            # Ctrl+→
+bindkey '^[[1;5D' backward-word           # Ctrl+←
+bindkey '^H' backward-kill-word           # Ctrl+Retour arrière : efface le mot précédent
+bindkey '^[[3;5~' kill-word               # Ctrl+Suppr : efface le mot suivant
+bindkey '^[[3~' delete-char               # Suppr
+bindkey '^[[H' beginning-of-line          # Début
+bindkey '^[OH' beginning-of-line
+bindkey '^[[F' end-of-line                # Fin
+bindkey '^[OF' end-of-line
+
+# ↑ et ↓ ne parcourent que les commandes qui commencent comme la ligne tapée
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[OA' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+bindkey '^[OB' down-line-or-beginning-search
+
+# Ctrl+X puis Ctrl+E : éditer la commande dans ton éditeur
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^X^E' edit-command-line
+
+# ==================== Alias et fonctions ====================
+[ -f ~/.shell_common ] && . ~/.shell_common   # config partagée avec bash
+
+# Placés après .shell_common pour ne pas être écrasés
+if command -v eza >/dev/null; then
+  # LS_COLORS vidé pour eza, sinon il passe devant ~/.config/eza/theme.yml
+  eza() { LS_COLORS= command eza "$@"; }
+  alias ls='eza --icons --group-directories-first'
+  alias ll='eza -l --icons --git --group-directories-first'
+  alias la='eza -la --icons --git --group-directories-first'
+  alias lt='eza --tree --level=2 --icons --git-ignore'
+else
+  alias ls='ls --color=auto'
+fi
+command -v batcat  >/dev/null && alias cat='batcat --paging=never'
+command -v fdfind  >/dev/null && alias fd='fdfind'
+command -v lazygit >/dev/null && alias lg='lazygit'
+command -v tmux    >/dev/null && alias t='tmux new -A -s main'   # session tmux "main", créée ou rejointe
+alias cls='clear'
+
+# ==================== Outils ====================
+export BAT_THEME="ansi"                   # bat reprend les couleurs du terminal
+
+# Pages man en couleur : titres et options en rouge, arguments en bleu
+export MANPAGER="less -R --use-color -Dd+r -Du+b"
+export MANROFFOPT="-P -c"
+
+# fzf : Ctrl+T fichier avec aperçu, Alt+C dossier avec arbre (et Ctrl+R si atuin manque)
+_fzf_colors="bg+:#313244,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+export FZF_DEFAULT_OPTS="--border=rounded --color=$_fzf_colors"
+export FZF_CTRL_T_OPTS="--preview 'batcat --color=always --style=numbers --line-range=:200 {}'"
+export FZF_ALT_C_OPTS="--preview 'LS_COLORS= eza --tree --level=2 --icons --color=always {}'"
+if command -v fdfind >/dev/null; then
+  # fd respecte le .gitignore : target/, build/ et .git restent hors des résultats
+  export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fdfind --type d --hidden --follow --exclude .git'
+fi
+if command -v fzf >/dev/null; then
+  if fzf --zsh >/dev/null 2>&1; then
+    source <(fzf --zsh)                                    # fzf récent
+  elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    source /usr/share/doc/fzf/examples/key-bindings.zsh    # fzf ancien
+  fi
+fi
+
+# fzf-tab : Tab ouvre fzf, avec aperçu du contenu des dossiers
+# (chargé après fzf pour être le dernier à prendre la touche Tab)
+if [ -f ~/.zsh/fzf-tab/fzf-tab.plugin.zsh ]; then
+  source ~/.zsh/fzf-tab/fzf-tab.plugin.zsh
+  zstyle ':completion:*' menu no
+  zstyle ':completion:*:descriptions' format '[%d]'
+  zstyle ':fzf-tab:*' fzf-flags --color=$_fzf_colors
+  zstyle ':fzf-tab:*' switch-group '<' '>'
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'LS_COLORS= eza -1 --icons --color=always $realpath'
+else
+  zstyle ':completion:*' menu select                        # Tab ouvre un menu navigable
+  zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
+fi
+
+# zoxide remplace cd : "cd morceau" saute dans un dossier déjà visité, "cdi" pour choisir avec fzf
+command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
+
+# Suggestions grisées tirées de l'historique et de la complétion (→ pour accepter)
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086'
+for _f in /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh; do
+  if [ -f $_f ]; then
+    source $_f
+    break
+  fi
+done
+
+# atuin : historique dans une base, Ctrl+R pour chercher dedans (↑ garde la recherche par préfixe)
+if command -v atuin >/dev/null; then
+  eval "$(atuin init zsh --disable-up-arrow)"
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)   # suggestions instantanées, sans lancer atuin à chaque touche
+fi
+
+# ==================== Prompt ====================
+command -v starship >/dev/null && eval "$(starship init zsh)"
+
+# Prompt transitoire : une fois la commande validée, il ne reste que ❯
+autoload -Uz add-zle-hook-widget
+_transient_prompt() {
+  PROMPT='%F{green}❯%f ' RPROMPT='' zle .reset-prompt
+  zle -R
+}
+add-zle-hook-widget zle-line-finish _transient_prompt
+
+# ==================== Réglages propres à la machine ====================
+# Alias, fonctions et variables perso : ~/.zshrc.local, jamais écrasé par le script
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
+
+# ==================== Toujours en dernier ====================
+for _f in /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
+  if [ -f $_f ]; then
+    source $_f
+    break
+  fi
+done
+unset _f

@@ -1,0 +1,39 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # Weekly, because the scripts pull the latest releases of several tools
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: sudo apt-get update && sudo apt-get install -y zsh shellcheck
+      - run: bash tests/lint.sh
+
+  install:
+    needs: lint
+    name: ${{ matrix.script }} on ${{ matrix.image }} (${{ matrix.mode }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { script: ssh, image: "ubuntu:24.04", mode: root }
+          - { script: ssh, image: "debian:12", mode: root }
+          - { script: ssh, image: "ubuntu:24.04", mode: nosudo }
+          - { script: wsl, image: "ubuntu:24.04", mode: sudo }
+          - { script: desktop, image: "ubuntu:26.04", mode: sudo }
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker run --rm -v "$PWD:/repo:ro" "${{ matrix.image }}" bash /repo/tests/container.sh "${{ matrix.script }}" "${{ matrix.mode }}"

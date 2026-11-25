@@ -1,6 +1,8 @@
 # Zsh + Starship terminal setup for Ubuntu, WSL and SSH (Catppuccin, eza Material icons)
 
-One script to turn a fresh Ubuntu terminal into a fast, good-looking and keyboard-friendly workspace: **Zsh**, a two-line **Starship** prompt in **Catppuccin Mocha**, **fzf** everywhere, **zoxide** smart `cd`, modern CLI tools (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**) and file icons that look like the **VS Code Material Icon Theme**.
+[![test](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml/badge.svg)](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml)
+
+One script to turn a fresh Ubuntu terminal into a fast, good-looking and keyboard-friendly workspace: **Zsh**, a two-line **Starship** prompt in **Catppuccin Mocha**, **fzf** everywhere, **zoxide** smart `cd`, modern CLI tools (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**, **tmux**, **atuin**, **tldr**) and file icons that look like the **VS Code Material Icon Theme**.
 
 Three flavours of the same config:
 
@@ -77,10 +79,13 @@ Then open a new terminal. Icons need a **Nerd Font** in the terminal you are loo
 - **git-delta** for colored `git diff` with line numbers
 - `lg` opens **lazygit** with a Catppuccin theme
 - **btop** with the Catppuccin Mocha theme, **nvtop**, **fastfetch**, **glow**, **hyperfine**
+- `t` opens the **tmux** session `main`, or reattaches to it, so it survives an SSH disconnect. Catppuccin status bar on top, mouse support, `Ctrl+B |` and `Ctrl+B -` split in the current folder, Alt+arrows move between panes
+- **atuin** keeps your history in a local database: Ctrl+R searches it (fuzzy, with the folder and exit code of each command). Your zsh history is imported once, and `↑` keeps its prefix search. Encrypted sync between machines is optional: `atuin register`, then `atuin login` on the others
+- `tldr tar` shows short, practical examples for a command (**tealdeer**, pages cached for offline use, Catppuccin colors)
 
 ### fzf key bindings
 
-- Ctrl+R: search history
+- Ctrl+R: search history (atuin when installed, fzf otherwise)
 - Ctrl+T: search a file, with a bat preview
 - Alt+C: jump to a folder, with a tree preview
 
@@ -111,15 +116,30 @@ Set at the top of `setup-terminal.sh`, 1 to install and enable, 0 to skip:
 - `EXT_TILING=0`: **Tiling Shell** (when enabled, Ubuntu's built-in tiling is turned off to avoid conflicts)
 - `EXT_ASTRA=0`: **Astra Monitor**, CPU, RAM, NVIDIA GPU and temperature in the top bar
 
+## Config files
+
+The three scripts share the same files in `config/`: `zshrc`, `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` and `tealdeer.toml`, plus `eza/theme.yml`. They copy them from the clone they run from, or download them from this repository when run through `curl`. An installed file is backed up and replaced only when its content changed.
+
+## Tests
+
+Every push runs `tests/lint.sh` (bash and zsh syntax, shellcheck, TOML) and then each script twice in a fresh container: the SSH script on Ubuntu 24.04 and Debian 12 as root and on Ubuntu 24.04 without sudo, the WSL script on Ubuntu 24.04 and the desktop script on Ubuntu 26.04 with sudo. `tests/check.sh` then checks the installed files, the zsh key bindings, the eza theme, tmux, atuin and tldr, and that the second run changed nothing. The same run happens every Monday, since the scripts fetch the latest releases of several tools.
+
+To run one locally:
+
+```bash
+docker run --rm -v "$PWD:/repo:ro" ubuntu:24.04 bash /repo/tests/container.sh ssh root
+```
+
 ## Requirements
 
 - Ubuntu 24.04 or newer (a package missing from your release is skipped with a `[!!]` line)
 - `sudo` for packages; without it the SSH script still installs Starship, the zsh plugins and the config in your home folder
 - Internet access to the Ubuntu archive, GitHub and starship.rs
+- atuin is installed on x86_64 and arm64 only, tldr also on 32-bit ARM
 
 ## Undo
 
-Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.config/starship.toml`, `~/.config/eza/theme.yml`, `~/.config/lazygit/config.yml`). Copy it back to return to your previous setup. To go back to bash: `chsh -s /bin/bash`.
+Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.config/starship.toml`, `~/.config/eza/theme.yml`, `~/.config/lazygit/config.yml`, `~/.config/tmux/tmux.conf`, `~/.config/atuin/config.toml`, `~/.config/tealdeer/config.toml`). Copy it back to return to your previous setup. To go back to bash: `chsh -s /bin/bash`.
 
 ## FAQ
 
@@ -129,9 +149,13 @@ Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.conf
 
 **Can I keep my own aliases?** Yes, put them in `~/.zshrc.local`. `~/.shell_common` is loaded too, if you share aliases with bash.
 
+**tmux keeps its old look.** A `~/.tmux.conf` takes priority over `~/.config/tmux/tmux.conf`: rename it, then run `tmux kill-server`.
+
+**I prefer the fzf history search.** Remove atuin (`rm ~/.local/bin/atuin`): Ctrl+R goes back to fzf.
+
 ## Credits
 
-[Starship](https://starship.rs), [Catppuccin](https://catppuccin.com), [eza](https://github.com/eza-community/eza), [Nerd Fonts](https://www.nerdfonts.com), [fzf](https://github.com/junegunn/fzf), [fzf-tab](https://github.com/Aloxaf/fzf-tab), [zoxide](https://github.com/ajeetdsouza/zoxide), [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme) for the icon colors, [Quake Terminal](https://github.com/diegodario88/quake-terminal), [Tiling Shell](https://github.com/domferr/tilingshell), [Astra Monitor](https://github.com/AstraExt/astra-monitor).
+[Starship](https://starship.rs), [Catppuccin](https://catppuccin.com), [eza](https://github.com/eza-community/eza), [Nerd Fonts](https://www.nerdfonts.com), [fzf](https://github.com/junegunn/fzf), [fzf-tab](https://github.com/Aloxaf/fzf-tab), [zoxide](https://github.com/ajeetdsouza/zoxide), [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme) for the icon colors, [tmux](https://github.com/tmux/tmux) with [catppuccin/tmux](https://github.com/catppuccin/tmux), [atuin](https://atuin.sh) with [catppuccin/atuin](https://github.com/catppuccin/atuin), [tealdeer](https://github.com/tealdeer-rs/tealdeer) and the [tldr pages](https://tldr.sh), [Quake Terminal](https://github.com/diegodario88/quake-terminal), [Tiling Shell](https://github.com/domferr/tilingshell), [Astra Monitor](https://github.com/AstraExt/astra-monitor).
 
 ## License
 
