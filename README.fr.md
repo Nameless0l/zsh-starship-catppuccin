@@ -14,6 +14,8 @@ Chaque script peut être relancé sans risque : tout fichier remplacé est d'abo
 
 > [English version](README.md)
 
+![Prompt Starship et liste eza en Catppuccin Mocha](docs/screenshots/prompt.png)
+
 ## Installation
 
 À lancer avec un utilisateur normal, sans sudo : le script le demande quand il en a besoin. Le script SSH peut aussi tourner en root, par exemple sur une carte embarquée.
@@ -63,6 +65,26 @@ L'usage au quotidien de chaque outil, avec des exemples : **[guide d'utilisation
 Les alias et fonctions personnels vont dans `~/.zshrc.local` : le script ne le touche jamais.
 
 Pour régénérer le thème d'icônes à partir de la dernière version de Material Icon Theme : `bash eza/build.sh`.
+
+## Captures
+
+Recherche dans l'historique avec atuin (`Ctrl+R`) :
+
+![Fenêtre de recherche d'atuin](docs/screenshots/atuin.png)
+
+Complétion par Tab dans fzf, avec l'aperçu du dossier choisi :
+
+![Complétion fzf-tab après cd](docs/screenshots/completion.png)
+
+lazygit (`lg`) :
+
+![lazygit](docs/screenshots/lazygit.png)
+
+tmux avec la barre Catppuccin (`t`) :
+
+![tmux avec deux panneaux](docs/screenshots/tmux.png)
+
+Les autres outils sont montrés dans le [guide d'utilisation](docs/GUIDE.fr.md).
 
 ## Fichiers de config
 

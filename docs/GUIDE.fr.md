@@ -33,6 +33,8 @@ Sans rien taper, `↑` parcourt tout l'historique, comme d'habitude.
 
 Pendant la frappe, la suite la plus probable s'affiche en gris, tirée de l'historique et de la complétion.
 
+![Suggestion grisée après avoir tapé git lo](screenshots/suggest.png)
+
 - `→` ou `Fin` : accepte toute la suggestion
 - `Ctrl+→` : accepte seulement le mot suivant
 - continuer à taper : la suggestion change ou disparaît
@@ -95,10 +97,14 @@ Un chemin qui existe (`cd ..`, `cd src`, `cd /etc`) marche exactement comme avan
 
 `Tab` ouvre les complétions dans une liste filtrable : taper quelques lettres pour filtrer, `↑` et `↓` pour choisir, Entrée pour valider. Après `cd`, un aperçu montre le contenu de chaque dossier. Quand les résultats sont rangés par groupes (fichiers, options, commandes…), `<` et `>` passent d'un groupe à l'autre.
 
+![Tab après cd : les dossiers dans une liste, avec l'aperçu du dossier choisi](screenshots/completion.png)
+
 ### Ctrl+T et Alt+C
 
 - `Ctrl+T` cherche un fichier sous le dossier courant, avec un aperçu de son contenu, et colle son chemin dans la ligne. Exemple : taper `vim ` puis `Ctrl+T`, chercher `conf`, Entrée.
 - `Alt+C` cherche un dossier, avec un aperçu en arbre, et y entre directement.
+
+![Ctrl+T : recherche de fichier avec aperçu par bat](screenshots/fzf.png)
 
 ### fd : chercher par nom de fichier
 
@@ -139,6 +145,8 @@ Pour chaque commande, atuin garde dans une base locale :
 ### La fenêtre de recherche (Ctrl+R)
 
 `Ctrl+R` ouvre la recherche. Les lettres tapées n'ont pas besoin de se suivre : `dk run` trouve `docker run -it ubuntu`.
+
+![La fenêtre de recherche d'atuin ouverte avec Ctrl+R](screenshots/atuin.png)
 
 | Touche | Effet |
 |---|---|
@@ -202,15 +210,27 @@ Sans compte, tout reste sur la machine. Pour partager l'historique entre plusieu
 
 Les pages tldr restent en cache pour marcher hors ligne et se mettent à jour seules tous les 30 jours (`tldr --update` pour forcer).
 
+![lt : arbre avec icônes](screenshots/tree.png)
+
+![cat : coloration syntaxique par bat](screenshots/bat.png)
+
+![glow README.md](screenshots/glow.png)
+
+![tldr tar](screenshots/tldr.png)
+
 ## Git : delta et lazygit
 
 ### delta
 
 `git diff`, `git show` et `git log -p` passent par delta : coloration syntaxique, numéros de ligne, mots modifiés surlignés. Dans l'affichage, `n` et `N` sautent au fichier suivant ou précédent, `q` quitte.
 
+![git diff affiché par delta](screenshots/delta.png)
+
 ### lazygit (`lg`)
 
 lazygit est une interface complète pour git dans le terminal. Le lancer dans un dépôt : `lg`.
+
+![lazygit sur un projet avec des changements indexés et non indexés](screenshots/lazygit.png)
 
 **L'écran.** À gauche, cinq panneaux numérotés. À droite, le détail de ce qui est sélectionné (diff d'un fichier, contenu d'un commit). En bas, les touches utiles du panneau courant.
 
@@ -259,6 +279,8 @@ On passe d'un panneau à l'autre avec son numéro ou `←` et `→`, et on se d�
 - Une **session** est un espace de travail qui continue de tourner même quand le terminal se ferme ou que la connexion SSH coupe.
 - Une session contient des **fenêtres**, comme des onglets, affichées dans la barre du haut.
 - Une fenêtre se découpe en **panneaux**, plusieurs terminaux côte à côte.
+
+![tmux : session main coupée en deux panneaux, barre Catppuccin en haut](screenshots/tmux.png)
 
 ### Démarrer et reprendre
 
@@ -309,6 +331,8 @@ Un clic choisit un panneau, la molette fait défiler, glisser une bordure redime
 Exemple : `hyperfine 'fd -e py' 'find . -name "*.py"'`.
 
 ## Lire le prompt
+
+![Le prompt dans un projet git, après ll](screenshots/prompt.png)
 
 Sans les icônes, il ressemble à ceci :
 

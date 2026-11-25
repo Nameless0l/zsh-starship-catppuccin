@@ -33,6 +33,8 @@ With nothing typed, `↑` walks through the whole history as usual.
 
 While typing, the most likely ending shows in gray, taken from the history and from completion.
 
+![Gray suggestion after typing git lo](screenshots/suggest.png)
+
 - `→` or `End`: accept the whole suggestion
 - `Ctrl+→`: accept the next word only
 - keep typing: the suggestion changes or goes away
@@ -95,10 +97,14 @@ A path that exists (`cd ..`, `cd src`, `cd /etc`) works exactly as before. zoxid
 
 `Tab` opens completions in a filterable list: type a few letters to filter, `↑` and `↓` to choose, Enter to accept. After `cd`, a preview shows what each folder contains. When results are grouped (files, options, commands...), `<` and `>` switch between groups.
 
+![Tab after cd: folders in a list, with a preview of the selected one](screenshots/completion.png)
+
 ### Ctrl+T and Alt+C
 
 - `Ctrl+T` searches for a file under the current folder, with a preview of its content, and pastes its path into the line. Example: type `vim `, then `Ctrl+T`, search `conf`, Enter.
 - `Alt+C` searches for a folder, with a tree preview, and goes into it.
+
+![Ctrl+T: file search with a bat preview](screenshots/fzf.png)
 
 ### fd: search by file name
 
@@ -139,6 +145,8 @@ For each command, atuin keeps in a local database:
 ### The search window (Ctrl+R)
 
 `Ctrl+R` opens the search. Typed letters do not need to be next to each other: `dk run` finds `docker run -it ubuntu`.
+
+![atuin search window opened with Ctrl+R](screenshots/atuin.png)
 
 | Key | Effect |
 |---|---|
@@ -202,15 +210,27 @@ Without an account, everything stays on the machine. To share the history betwee
 
 tldr pages are cached for offline use and update themselves every 30 days (`tldr --update` to force it).
 
+![lt: tree with icons](screenshots/tree.png)
+
+![cat: syntax highlighting by bat](screenshots/bat.png)
+
+![glow README.md](screenshots/glow.png)
+
+![tldr tar](screenshots/tldr.png)
+
 ## Git: delta and lazygit
 
 ### delta
 
 `git diff`, `git show` and `git log -p` go through delta: syntax highlighting, line numbers, changed words highlighted. In the view, `n` and `N` jump to the next or previous file, `q` quits.
 
+![git diff through delta](screenshots/delta.png)
+
 ### lazygit (`lg`)
 
 lazygit is a full git interface in the terminal. Start it in a repository: `lg`.
+
+![lazygit on a project with unstaged and staged changes](screenshots/lazygit.png)
 
 **The screen.** On the left, five numbered panels. On the right, the details of what is selected (a file's diff, a commit's content). At the bottom, the useful keys for the current panel.
 
@@ -259,6 +279,8 @@ Move between panels with their number or `←` and `→`, and inside one with `�
 - A **session** is a workspace that keeps running when the terminal closes or the SSH connection drops.
 - A session holds **windows**, like tabs, shown in the top bar.
 - A window splits into **panes**, several terminals side by side.
+
+![tmux: session main split in two panes, Catppuccin bar on top](screenshots/tmux.png)
 
 ### Start and resume
 
@@ -309,6 +331,8 @@ A click picks a pane, the wheel scrolls, dragging a border resizes. To select te
 Example: `hyperfine 'fd -e py' 'find . -name "*.py"'`.
 
 ## Reading the prompt
+
+![The prompt in a git project, after ll](screenshots/prompt.png)
 
 Without the icons, it looks like this:
 

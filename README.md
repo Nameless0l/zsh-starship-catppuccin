@@ -14,6 +14,8 @@ Every script can be run again safely: each file it replaces is first saved as `f
 
 > Script comments and messages are in French. [Version française du README](README.fr.md).
 
+![Starship prompt and eza listing in Catppuccin Mocha](docs/screenshots/prompt.png)
+
 ## Quick start
 
 Run as your normal user (not with sudo, the script asks for it when needed). The SSH script can also run as root, for example on an embedded board.
@@ -118,6 +120,26 @@ Set at the top of `setup-terminal.sh`, 1 to install and enable, 0 to skip:
 - `EXT_QUAKE=1`: **Quake Terminal**, a drop-down Ptyxis on Super+Enter
 - `EXT_TILING=0`: **Tiling Shell** (when enabled, Ubuntu's built-in tiling is turned off to avoid conflicts)
 - `EXT_ASTRA=0`: **Astra Monitor**, CPU, RAM, NVIDIA GPU and temperature in the top bar
+
+## Screenshots
+
+History search with atuin (`Ctrl+R`):
+
+![atuin search window](docs/screenshots/atuin.png)
+
+Tab completion in fzf, with a preview of the selected folder:
+
+![fzf-tab completion after cd](docs/screenshots/completion.png)
+
+lazygit (`lg`):
+
+![lazygit](docs/screenshots/lazygit.png)
+
+tmux with the Catppuccin bar (`t`):
+
+![tmux with two panes](docs/screenshots/tmux.png)
+
+The other tools are shown in the [user guide](docs/GUIDE.md).
 
 ## Config files
 
