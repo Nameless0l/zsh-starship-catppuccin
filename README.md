@@ -36,11 +36,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Nameless0l/zsh-starship-catp
 
 Then open a new terminal. Icons need a **Nerd Font** in the terminal you are looking at:
 
-- Ubuntu desktop: JetBrainsMono Nerd Font is installed and applied to Ptyxis automatically.
-- WSL: on Windows, run `winget install -e --id DEVCOM.JetBrainsMonoNerdFont`, then in Windows Terminal open Settings, Profiles, Defaults, Appearance and set the font face to `JetBrainsMono Nerd Font`.
+- Ubuntu desktop: JetBrainsMono Nerd Font is installed and applied to Ptyxis automatically, together with a Catppuccin Mocha color palette.
+- WSL: on Windows, run `winget install -e --id DEVCOM.JetBrainsMonoNerdFont`. The script then sets this font and a Catppuccin Mocha color scheme in Windows Terminal's `settings.json` (backed up first). If that file contains comments it is left untouched: set the font and color scheme in Settings, Profiles, Appearance.
 - SSH: install a Nerd Font on the computer you connect **from**, not on the server.
 
 ## What you get
+
+### Terminal colors
+
+- **Ptyxis** (Ubuntu desktop): a `Catppuccin Mocha` palette is added to `~/.local/share/org.gnome.Ptyxis/palettes/` and applied to every existing profile, replacing Ubuntu's aubergine background. Open Ptyxis once before running the script on a brand-new install, so that a profile exists.
+- **Windows Terminal** (WSL): the official Catppuccin Mocha scheme is added and applied to the Ubuntu and WSL profiles.
 
 ### Starship prompt (Catppuccin Mocha)
 

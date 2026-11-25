@@ -62,6 +62,69 @@ if [ ! -x "$HOME/.local/bin/starship" ]; then
   fi
 fi
 
+# ---------- Windows Terminal : police Nerd Font et couleurs Catppuccin Mocha ----------
+titre "Windows Terminal"
+WT_SETTINGS=""
+if command -v cmd.exe >/dev/null 2>&1 && command -v wslpath >/dev/null 2>&1; then
+  win_local="$(cd /mnt/c 2>/dev/null && cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null)"
+  win_local="${win_local%$'\r'}"
+  if [ -n "$win_local" ]; then
+    for d in Microsoft.WindowsTerminal_8wekyb3d8bbwe Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe; do
+      f="$(wslpath -u "$win_local")/Packages/$d/LocalState/settings.json"
+      if [ -f "$f" ]; then
+        WT_SETTINGS="$f"
+        break
+      fi
+    done
+  fi
+fi
+WT_MANUEL=1
+if [ -n "$WT_SETTINGS" ]; then
+  sauvegarde "$WT_SETTINGS"
+  if python3 - "$WT_SETTINGS" << 'WT_EOF'
+import json
+import sys
+
+chemin = sys.argv[1]
+SCHEME = {"name": "Catppuccin Mocha", "cursorColor": "#F5E0DC", "selectionBackground": "#585B70", "background": "#1E1E2E", "foreground": "#CDD6F4", "black": "#45475A", "red": "#F38BA8", "green": "#A6E3A1", "yellow": "#F9E2AF", "blue": "#89B4FA", "purple": "#F5C2E7", "cyan": "#94E2D5", "white": "#BAC2DE", "brightBlack": "#585B70", "brightRed": "#F38BA8", "brightGreen": "#A6E3A1", "brightYellow": "#F9E2AF", "brightBlue": "#89B4FA", "brightPurple": "#F5C2E7", "brightCyan": "#94E2D5", "brightWhite": "#A6ADC8"}
+POLICE = "JetBrainsMono Nerd Font"
+
+try:
+    with open(chemin, encoding="utf-8-sig") as f:
+        d = json.load(f)
+except ValueError:
+    print("[!!] settings.json contient des commentaires, il n'est pas modifié")
+    sys.exit(1)
+
+schemes = [s for s in d.get("schemes", []) if s.get("name") != SCHEME["name"]]
+schemes.append(SCHEME)
+d["schemes"] = schemes
+
+profiles = d.setdefault("profiles", {})
+if isinstance(profiles, list):
+    profiles = d["profiles"] = {"defaults": {}, "list": profiles}
+defaults = profiles.setdefault("defaults", {})
+defaults.setdefault("font", {})["face"] = POLICE
+
+# Couleurs sur les profils WSL et Ubuntu, qui gardent sinon le jeu de couleurs de leur distribution
+n = 0
+for p in profiles.get("list", []):
+    nom = str(p.get("name", "")).lower()
+    source = str(p.get("source", "")).lower()
+    if "ubuntu" in nom or "wsl" in source or "canonical" in source:
+        p["colorScheme"] = SCHEME["name"]
+        n += 1
+
+with open(chemin, "w", encoding="utf-8") as f:
+    json.dump(d, f, indent=4, ensure_ascii=False)
+    f.write("\n")
+print(f"[ok] Windows Terminal : police {POLICE}, couleurs Catppuccin Mocha sur {n} profil(s) Ubuntu/WSL")
+WT_EOF
+  then
+    WT_MANUEL=0
+  fi
+fi
+
 # ---------- Plugins zsh ----------
 titre "Plugins zsh"
 mkdir -p "$HOME/.zsh"
@@ -806,9 +869,11 @@ fi
 
 titre "Terminé"
 echo "Ferme cette fenêtre WSL et rouvre-la pour arriver dans zsh."
-echo "Les icônes du prompt viennent de la police de Windows, pas de WSL. Dans PowerShell :"
+echo "Les icônes du prompt viennent de la police de Windows, pas de WSL. Si elle manque, dans PowerShell :"
 echo "  winget install -e --id DEVCOM.JetBrainsMonoNerdFont"
-echo "Puis dans Windows Terminal : Paramètres, profil Ubuntu, Apparence, police JetBrainsMono Nerd Font."
+if [ "$WT_MANUEL" -eq 1 ]; then
+  echo "Puis dans Windows Terminal : Paramètres, profil Ubuntu, Apparence, police JetBrainsMono Nerd Font et jeu de couleurs Catppuccin Mocha."
+fi
 if [ ! -f "$HOME/.zshrc.local" ]; then
   echo "Tes alias et fonctions perso vont dans ~/.zshrc.local : le script ne le touche jamais."
 fi

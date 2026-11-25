@@ -90,6 +90,51 @@ if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$(fc-list ":family=$NERD_FONT Ner
   fi
 fi
 
+# ---------- Couleurs du terminal : palette Catppuccin Mocha pour Ptyxis ----------
+titre "Palette Ptyxis"
+PALETTE_NOM="Catppuccin Mocha"
+PALETTE_DIR="$HOME/.local/share/org.gnome.Ptyxis/palettes"
+mkdir -p "$PALETTE_DIR"
+cat > "$PALETTE_DIR/$PALETTE_NOM.palette" << 'PALETTE_EOF'
+[Palette]
+Name=Catppuccin Mocha
+Background=#1E1E2E
+Foreground=#CDD6F4
+Cursor=#F5E0DC
+Color0=#45475A
+Color1=#F38BA8
+Color2=#A6E3A1
+Color3=#F9E2AF
+Color4=#89B4FA
+Color5=#F5C2E7
+Color6=#94E2D5
+Color7=#BAC2DE
+Color8=#585B70
+Color9=#F38BA8
+Color10=#A6E3A1
+Color11=#F9E2AF
+Color12=#89B4FA
+Color13=#F5C2E7
+Color14=#94E2D5
+Color15=#A6ADC8
+PALETTE_EOF
+
+# Appliquée à tous les profils Ptyxis existants (sinon Ubuntu garde son fond aubergine)
+PALETTE_MANUELLE=1
+if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && gsettings writable org.gnome.Ptyxis profile-uuids >/dev/null 2>&1; then
+  uuids="$(gsettings get org.gnome.Ptyxis profile-uuids)"
+  uuids="${uuids#@as }"
+  uuids="${uuids//[\[\]\',]/ }"
+  for u in $uuids; do
+    if gsettings set "org.gnome.Ptyxis.Profile:/org/gnome/Ptyxis/Profiles/$u/" palette "'$PALETTE_NOM'"; then
+      PALETTE_MANUELLE=0
+    fi
+  done
+fi
+if [ "$PALETTE_MANUELLE" -eq 0 ]; then
+  echo "[ok] Ptyxis : palette $PALETTE_NOM"
+fi
+
 # ---------- fzf-tab ----------
 titre "fzf-tab"
 if [ ! -d "$HOME/.zsh/fzf-tab" ]; then
@@ -991,6 +1036,9 @@ titre "Terminé"
 echo "Ferme ta session et reconnecte-toi, puis ouvre un terminal."
 if [ "$POLICE_MANUELLE" -eq 1 ]; then
   echo "Choisis la police $NERD_FONT Nerd Font dans les préférences de Ptyxis."
+fi
+if [ "$PALETTE_MANUELLE" -eq 1 ]; then
+  echo "Ouvre Ptyxis une fois puis relance le script, ou choisis la palette $PALETTE_NOM dans ses préférences (Apparence)."
 fi
 if [ ! -f "$HOME/.zshrc.local" ]; then
   echo "Tes alias et fonctions perso vont dans ~/.zshrc.local : le script ne le touche jamais."
