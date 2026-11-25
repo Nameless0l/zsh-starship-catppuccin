@@ -176,18 +176,32 @@ installer_binaire tldr tealdeer-rs/tealdeer "${TLDR_CIBLE:+tealdeer-linux-$TLDR_
 # ---------- Windows Terminal : police Nerd Font et couleurs Catppuccin Mocha ----------
 titre "Windows Terminal"
 WT_SETTINGS=""
+win_local=""
 if command -v cmd.exe >/dev/null 2>&1 && command -v wslpath >/dev/null 2>&1; then
   win_local="$(cd /mnt/c 2>/dev/null && cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null)"
   win_local="${win_local%$'\r'}"
-  if [ -n "$win_local" ]; then
-    for d in Microsoft.WindowsTerminal_8wekyb3d8bbwe Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe; do
-      f="$(wslpath -u "$win_local")/Packages/$d/LocalState/settings.json"
-      if [ -f "$f" ]; then
-        WT_SETTINGS="$f"
-        break
-      fi
-    done
+  if [ -z "$win_local" ]; then
+    echo "[..] cmd.exe ne se lance pas (interop Windows coupée), Windows Terminal cherché dans /mnt/c/Users"
   fi
+fi
+if [ -n "$win_local" ]; then
+  dossiers_windows=("$(wslpath -u "$win_local")")
+else
+  dossiers_windows=(/mnt/c/Users/*/AppData/Local)
+fi
+trouves=()
+for dossier in "${dossiers_windows[@]}"; do
+  for d in Microsoft.WindowsTerminal_8wekyb3d8bbwe Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe; do
+    if [ -f "$dossier/Packages/$d/LocalState/settings.json" ]; then
+      trouves+=("$dossier/Packages/$d/LocalState/settings.json")
+      break
+    fi
+  done
+done
+if [ "${#trouves[@]}" -eq 1 ]; then
+  WT_SETTINGS="${trouves[0]}"
+elif [ "${#trouves[@]}" -gt 1 ]; then
+  echo "[..] Windows Terminal trouvé dans plusieurs profils Windows, aucun n'est modifié"
 fi
 WT_MANUEL=1
 if [ -n "$WT_SETTINGS" ]; then
@@ -342,7 +356,7 @@ titre "tmux, atuin, tldr"
 if command -v tmux >/dev/null 2>&1; then
   TMUX_CATPPUCCIN="$HOME/.config/tmux/plugins/catppuccin/tmux"
   if [ ! -d "$TMUX_CATPPUCCIN" ]; then
-    if ! git clone -q --depth 1 --branch v2.3.2 https://github.com/catppuccin/tmux.git "$TMUX_CATPPUCCIN"; then
+    if ! git -c advice.detachedHead=false clone -q --depth 1 --branch v2.3.2 https://github.com/catppuccin/tmux.git "$TMUX_CATPPUCCIN"; then
       echo "[!!] thème tmux Catppuccin non cloné"
     fi
   fi

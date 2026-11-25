@@ -334,7 +334,7 @@ titre "tmux, atuin, tldr"
 if command -v tmux >/dev/null 2>&1; then
   TMUX_CATPPUCCIN="$HOME/.config/tmux/plugins/catppuccin/tmux"
   if [ ! -d "$TMUX_CATPPUCCIN" ]; then
-    if ! git clone -q --depth 1 --branch v2.3.2 https://github.com/catppuccin/tmux.git "$TMUX_CATPPUCCIN"; then
+    if ! git -c advice.detachedHead=false clone -q --depth 1 --branch v2.3.2 https://github.com/catppuccin/tmux.git "$TMUX_CATPPUCCIN"; then
       echo "[!!] thème tmux Catppuccin non cloné"
     fi
   fi
