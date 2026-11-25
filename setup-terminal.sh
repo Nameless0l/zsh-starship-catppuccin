@@ -250,12 +250,18 @@ Color14=#94E2D5
 Color15=#A6ADC8
 PALETTE_EOF
 
-# Appliquée à tous les profils Ptyxis existants (sinon Ubuntu garde son fond aubergine)
+# Appliquée à tous les profils Ptyxis, sinon il garde sa palette par défaut
 PALETTE_MANUELLE=1
 if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && gsettings writable org.gnome.Ptyxis profile-uuids >/dev/null 2>&1; then
   uuids="$(gsettings get org.gnome.Ptyxis profile-uuids)"
   uuids="${uuids#@as }"
   uuids="${uuids//[\[\]\',]/ }"
+  if [ -z "${uuids// /}" ]; then
+    # Ptyxis jamais ouvert : son premier profil est créé ici, comme il le ferait lui-même
+    uuids="$(tr -d '-' < /proc/sys/kernel/random/uuid)"
+    gsettings set org.gnome.Ptyxis profile-uuids "['$uuids']"
+    gsettings set org.gnome.Ptyxis default-profile-uuid "$uuids"
+  fi
   for u in $uuids; do
     if gsettings set "org.gnome.Ptyxis.Profile:/org/gnome/Ptyxis/Profiles/$u/" palette "'$PALETTE_NOM'"; then
       PALETTE_MANUELLE=0
