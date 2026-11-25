@@ -200,23 +200,15 @@ if [ -z "$(fc-list ":family=$NERD_FONT Nerd Font")" ]; then
   fi
 fi
 
-# Police appliquée à Ptyxis, à la taille de la police à chasse fixe du système
+# Police appliquée à Ptyxis
+POLICE_PTYXIS="$NERD_FONT Nerd Font Medium 13"
 POLICE_MANUELLE=1
 if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$(fc-list ":family=$NERD_FONT Nerd Font")" ]; then
   if gsettings writable org.gnome.Ptyxis font-name >/dev/null 2>&1; then
-    mono="$(gsettings get org.gnome.desktop.interface monospace-font-name 2>/dev/null)"
-    taille="${mono##* }"
-    taille="${taille%\'}"
-    if [ -z "$taille" ]; then
-      taille=11
-    fi
-    case "$taille" in
-      *[!0-9.]*) taille=11 ;;
-    esac
     gsettings set org.gnome.Ptyxis use-system-font false
-    if gsettings set org.gnome.Ptyxis font-name "$NERD_FONT Nerd Font $taille"; then
+    if gsettings set org.gnome.Ptyxis font-name "$POLICE_PTYXIS"; then
       POLICE_MANUELLE=0
-      echo "[ok] Ptyxis : $NERD_FONT Nerd Font $taille"
+      echo "[ok] Ptyxis : $POLICE_PTYXIS"
     fi
   fi
 fi
@@ -603,7 +595,7 @@ fi
 titre "Terminé"
 echo "Fermer la session, se reconnecter, puis ouvrir un terminal."
 if [ "$POLICE_MANUELLE" -eq 1 ]; then
-  echo "Choisir la police $NERD_FONT Nerd Font dans les préférences de Ptyxis."
+  echo "Choisir la police $POLICE_PTYXIS dans les préférences de Ptyxis."
 fi
 if [ "$PALETTE_MANUELLE" -eq 1 ]; then
   echo "Choisir la palette $PALETTE_NOM dans les préférences de Ptyxis (Apparence)."

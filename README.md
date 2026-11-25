@@ -42,7 +42,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Nameless0l/zsh-starship-catp
 
 Then open a new terminal. Icons need a **Nerd Font** in the terminal you are looking at:
 
-- Ubuntu desktop: JetBrainsMono Nerd Font is installed and applied to Ptyxis automatically, together with a Catppuccin Mocha color palette.
+- Ubuntu desktop: JetBrainsMono Nerd Font is installed and applied to Ptyxis automatically (Medium, size 13), together with a Catppuccin Mocha color palette.
 - WSL: on Windows, run `winget install -e --id DEVCOM.JetBrainsMonoNerdFont`. The script then sets this font and a Catppuccin Mocha color scheme in Windows Terminal's `settings.json` (backed up first). If that file contains comments it is left untouched: set the font and color scheme in Settings, Profiles, Appearance.
 - SSH: install a Nerd Font on the computer you connect **from**, not on the server.
 
