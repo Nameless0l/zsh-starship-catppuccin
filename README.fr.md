@@ -46,6 +46,8 @@ Il suffit ensuite d'ouvrir un nouveau terminal. Les icônes demandent une **Nerd
 
 ## Ce que ça apporte
 
+L'usage au quotidien de chaque outil, avec des exemples : **[guide d'utilisation](docs/GUIDE.fr.md)**.
+
 - **Couleurs du terminal** : une palette `Catppuccin Mocha` est ajoutée à Ptyxis et appliquée à tous ses profils, à la place du fond aubergine d'Ubuntu. Sur une installation neuve, ouvrir Ptyxis une fois avant de lancer le script, pour qu'un profil existe. Sous WSL, le même jeu de couleurs est appliqué aux profils Ubuntu de Windows Terminal.
 - **Prompt Starship** sur deux lignes avec cadre, pastilles arrondies, statut git détaillé, versions des langages, durée des commandes, heure, pastille **Yocto** quand l'environnement BitBake est chargé, et **prompt transitoire** qui réduit les anciens prompts à `❯ commande`.
 - **Zsh** : historique de 100 000 lignes partagé et daté, suggestions grisées, coloration syntaxique, **fzf-tab** sur Tab, `cd` remplacé par zoxide (`cd doc` saute dans un dossier déjà visité, `cdi` pour choisir), `↑` et `↓` filtrés par le début de la ligne déjà tapé, raccourcis Ctrl+flèches, Ctrl+Retour arrière, Début et Fin, pages man en couleur.

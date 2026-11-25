@@ -46,6 +46,8 @@ Then open a new terminal. Icons need a **Nerd Font** in the terminal you are loo
 
 ## What you get
 
+Day-to-day use of every tool, with examples: **[user guide](docs/GUIDE.md)**.
+
 ### Terminal colors
 
 - **Ptyxis** (Ubuntu desktop): a `Catppuccin Mocha` palette is added to `~/.local/share/org.gnome.Ptyxis/palettes/` and applied to every existing profile, replacing Ubuntu's aubergine background. Open Ptyxis once before running the script on a brand-new install, so that a profile exists.
