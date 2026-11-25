@@ -22,7 +22,7 @@ same config/starship.toml "$HOME/.config/starship.toml"
 same config/lazygit.yml "$HOME/.config/lazygit/config.yml"
 same eza/theme.yml "$HOME/.config/eza/theme.yml"
 
-for tool in zsh starship atuin tldr; do
+for tool in zsh starship atuin tldr lazygit glow fastfetch delta; do
   if has "$tool"; then pass "$tool installed"; else fail "$tool not installed"; fi
 done
 
@@ -33,6 +33,7 @@ if has zsh; then
     check "$(zsh_i 'bindkey "^R"')" '"^R" atuin-search' "Ctrl+R opens atuin"
   fi
   check "$(zsh_i 'whence -w ls')" "ls: alias" "ls alias"
+  check "$(zsh_i 'whence -w lg')" "lg: alias" "lg alias for lazygit"
   if has zoxide; then
     # zoxide defines cd as an alias or a function depending on its version
     if [ "$(zsh_i 'whence -w cd')" != "cd: builtin" ]; then pass "cd goes through zoxide"; else fail "cd is still the builtin"; fi

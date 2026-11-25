@@ -47,15 +47,56 @@ installer() {
   rm -f "$tmp"
 }
 
-# Binaire d'une release GitHub, gardé seulement si son empreinte correspond au .sha256 publié à côté
-telecharger_verifie() {
-  local attendu
-  attendu="$(curl -fsSL "$1.sha256" | cut -d' ' -f1)"
-  if [ -n "$attendu" ] && curl -fsSL -o "$2" "$1" && [ "$(sha256sum "$2" | cut -d' ' -f1)" = "$attendu" ]; then
+# Fichier $2 de la dernière release du dépôt GitHub $1, écrit dans $3 seulement si son empreinte
+# correspond à celle que GitHub publie. VERSION dans $2 devient le numéro de version.
+release_github() {
+  local json tag nom attendu
+  json="$(curl -fsSL "https://api.github.com/repos/$1/releases/latest")" || return 1
+  tag="$(printf '%s\n' "$json" | sed -n 's/^  "tag_name": "\(.*\)",$/\1/p')"
+  RELEASE_VERSION="${tag#v}"
+  nom="${2//VERSION/$RELEASE_VERSION}"
+  attendu="$(printf '%s\n' "$json" | awk -v ligne="\"name\": \"$nom\"," '
+    index($0, ligne) { vu = 1 }
+    vu && /"digest": "sha256:/ { sub(/.*sha256:/, ""); sub(/".*/, ""); print; exit }')"
+  if [ -z "$tag" ] || [ -z "$attendu" ]; then
+    return 1
+  fi
+  curl -fsSL -o "$3" "https://github.com/$1/releases/download/$tag/$nom" || return 1
+  if [ "$(sha256sum "$3" | cut -d' ' -f1)" != "$attendu" ]; then
+    rm -f "$3"
+    return 1
+  fi
+}
+
+# Commande $1 absente : fichier $3 de la dernière release du dépôt $2, binaire $4 dans l'archive
+# (vide si le fichier est déjà le binaire), installé dans ~/.local/bin s'il tourne ici
+installer_binaire() {
+  local tmp binaire
+  if command -v "$1" >/dev/null 2>&1; then
     return 0
   fi
-  rm -f "$2"
-  return 1
+  if [ -z "$3" ]; then
+    echo "[..] pas de binaire $1 pour $(uname -m)"
+    return 0
+  fi
+  tmp="$(mktemp -d)"
+  if release_github "$2" "$3" "$tmp/telechargement"; then
+    if [ -z "$4" ]; then
+      binaire="$tmp/telechargement"
+    else
+      binaire="$tmp/${4//VERSION/$RELEASE_VERSION}"
+      tar -xzf "$tmp/telechargement" -C "$tmp" 2>/dev/null
+    fi
+    if [ -f "$binaire" ] && chmod +x "$binaire" && "$binaire" --version >/dev/null 2>&1; then
+      install -m 755 "$binaire" "$HOME/.local/bin/$1"
+      echo "[ok] $1 $RELEASE_VERSION installé dans ~/.local/bin"
+    else
+      echo "[!!] $1 téléchargé mais inutilisable sur ce système"
+    fi
+  else
+    echo "[!!] $1 non téléchargé, ou empreinte différente de celle publiée"
+  fi
+  rm -rf "$tmp"
 }
 
 # ---------- Paquets ----------
@@ -84,7 +125,10 @@ if [ "$SUDO_OK" -eq 1 ]; then
       continue
     fi
     if ! $SUDO apt-get install -y "$p"; then
-      echo "[!!] paquet indisponible : $p"
+      case "$p" in
+        eza | lazygit | fastfetch | glow | git-delta) echo "[..] $p absent d'apt, installé autrement plus bas" ;;
+        *) echo "[!!] paquet indisponible : $p" ;;
+      esac
     fi
   done
 else
@@ -103,6 +147,35 @@ if [ ! -x "$HOME/.local/bin/starship" ]; then
     fi
   fi
 fi
+
+# ---------- Binaires GitHub : outils hors d'apt, ou absents de cette version d'apt ----------
+titre "Binaires GitHub"
+export PATH="$HOME/.local/bin:$PATH"
+mkdir -p "$HOME/.local/bin"
+case "$(uname -m)" in
+  x86_64)
+    LAZYGIT_ARCH="x86_64"; GLOW_ARCH="x86_64"; FASTFETCH_ARCH="amd64"
+    DELTA_CIBLE="x86_64-unknown-linux-musl"; ATUIN_CIBLE="x86_64-unknown-linux-musl"; TLDR_CIBLE="x86_64-musl"
+    ;;
+  aarch64 | arm64)
+    LAZYGIT_ARCH="arm64"; GLOW_ARCH="arm64"; FASTFETCH_ARCH="aarch64"
+    DELTA_CIBLE="aarch64-unknown-linux-gnu"; ATUIN_CIBLE="aarch64-unknown-linux-musl"; TLDR_CIBLE="aarch64-musl"
+    ;;
+  armv7l)
+    LAZYGIT_ARCH="armv6"; GLOW_ARCH="arm"; FASTFETCH_ARCH="armv7l"
+    DELTA_CIBLE="arm-unknown-linux-gnueabihf"; ATUIN_CIBLE=""; TLDR_CIBLE="armv7-musleabihf"
+    ;;
+  *)
+    LAZYGIT_ARCH=""; GLOW_ARCH=""; FASTFETCH_ARCH=""
+    DELTA_CIBLE=""; ATUIN_CIBLE=""; TLDR_CIBLE=""
+    ;;
+esac
+installer_binaire lazygit jesseduffield/lazygit "${LAZYGIT_ARCH:+lazygit_VERSION_linux_$LAZYGIT_ARCH.tar.gz}" lazygit
+installer_binaire glow charmbracelet/glow "${GLOW_ARCH:+glow_VERSION_Linux_$GLOW_ARCH.tar.gz}" "glow_VERSION_Linux_$GLOW_ARCH/glow"
+installer_binaire fastfetch fastfetch-cli/fastfetch "${FASTFETCH_ARCH:+fastfetch-linux-$FASTFETCH_ARCH.tar.gz}" "fastfetch-linux-$FASTFETCH_ARCH/usr/bin/fastfetch"
+installer_binaire delta dandavison/delta "${DELTA_CIBLE:+delta-VERSION-$DELTA_CIBLE.tar.gz}" "delta-VERSION-$DELTA_CIBLE/delta"
+installer_binaire atuin atuinsh/atuin "${ATUIN_CIBLE:+atuin-$ATUIN_CIBLE.tar.gz}" "atuin-$ATUIN_CIBLE/atuin"
+installer_binaire tldr tealdeer-rs/tealdeer "${TLDR_CIBLE:+tealdeer-linux-$TLDR_CIBLE}" ""
 
 # ---------- Plugins zsh ----------
 titre "Plugins zsh"
@@ -207,15 +280,6 @@ fi
 
 # ---------- tmux, atuin, tldr ----------
 titre "tmux, atuin, tldr"
-export PATH="$HOME/.local/bin:$PATH"
-mkdir -p "$HOME/.local/bin"
-case "$(uname -m)" in
-  x86_64)        ATUIN_CIBLE="x86_64-unknown-linux-musl";  TLDR_CIBLE="x86_64-musl" ;;
-  aarch64|arm64) ATUIN_CIBLE="aarch64-unknown-linux-musl"; TLDR_CIBLE="aarch64-musl" ;;
-  armv7l)        ATUIN_CIBLE="";                           TLDR_CIBLE="armv7-musleabihf" ;;
-  *)             ATUIN_CIBLE="";                           TLDR_CIBLE="" ;;
-esac
-
 if command -v tmux >/dev/null 2>&1; then
   TMUX_CATPPUCCIN="$HOME/.config/tmux/plugins/catppuccin/tmux"
   if [ ! -d "$TMUX_CATPPUCCIN" ]; then
@@ -231,21 +295,6 @@ else
   echo "[..] tmux absent, config tmux sautée"
 fi
 
-if ! command -v atuin >/dev/null 2>&1; then
-  if [ -n "$ATUIN_CIBLE" ]; then
-    tmp="$(mktemp -d)"
-    if telecharger_verifie "https://github.com/atuinsh/atuin/releases/latest/download/atuin-$ATUIN_CIBLE.tar.gz" "$tmp/atuin.tar.gz" \
-      && tar -xzf "$tmp/atuin.tar.gz" -C "$tmp"; then
-      install -m 755 "$tmp/atuin-$ATUIN_CIBLE/atuin" "$HOME/.local/bin/atuin"
-      echo "[ok] atuin installé dans ~/.local/bin"
-    else
-      echo "[!!] atuin non téléchargé"
-    fi
-    rm -rf "$tmp"
-  else
-    echo "[..] pas de binaire atuin pour $(uname -m), Ctrl+R reste sur fzf"
-  fi
-fi
 if command -v atuin >/dev/null 2>&1; then
   installer config/atuin/config.toml "$HOME/.config/atuin/config.toml"
   installer config/atuin/themes/catppuccin-mocha-mauve.toml "$HOME/.config/atuin/themes/catppuccin-mocha-mauve.toml"
@@ -259,20 +308,6 @@ if command -v atuin >/dev/null 2>&1; then
   fi
 fi
 
-if ! command -v tldr >/dev/null 2>&1; then
-  if [ -n "$TLDR_CIBLE" ]; then
-    tmp="$(mktemp -d)"
-    if telecharger_verifie "https://github.com/tealdeer-rs/tealdeer/releases/latest/download/tealdeer-linux-$TLDR_CIBLE" "$tmp/tldr"; then
-      install -m 755 "$tmp/tldr" "$HOME/.local/bin/tldr"
-      echo "[ok] tldr (tealdeer) installé dans ~/.local/bin"
-    else
-      echo "[!!] tldr non téléchargé"
-    fi
-    rm -rf "$tmp"
-  else
-    echo "[..] pas de binaire tldr pour $(uname -m)"
-  fi
-fi
 if command -v tldr >/dev/null 2>&1; then
   installer config/tealdeer.toml "$HOME/.config/tealdeer/config.toml"
   if [ ! -d "$HOME/.cache/tealdeer" ]; then

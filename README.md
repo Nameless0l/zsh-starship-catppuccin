@@ -82,6 +82,7 @@ Then open a new terminal. Icons need a **Nerd Font** in the terminal you are loo
 - `t` opens the **tmux** session `main`, or reattaches to it, so it survives an SSH disconnect. Catppuccin status bar on top, mouse support, `Ctrl+B |` and `Ctrl+B -` split in the current folder, Alt+arrows move between panes
 - **atuin** keeps your history in a local database: Ctrl+R searches it (fuzzy, with the folder and exit code of each command). Your zsh history is imported once, and `↑` keeps its prefix search. Encrypted sync between machines is optional: `atuin register`, then `atuin login` on the others
 - `tldr tar` shows short, practical examples for a command (**tealdeer**, pages cached for offline use, Catppuccin colors)
+- Tools missing from apt on the system (lazygit, fastfetch and glow on Ubuntu 24.04, delta on Debian 12), plus atuin and tldr, come from their latest GitHub release into `~/.local/bin`. A download is kept only if its SHA-256 matches the one GitHub publishes for that file and the binary runs on the machine
 
 ### fzf key bindings
 
@@ -135,7 +136,7 @@ docker run --rm -v "$PWD:/repo:ro" ubuntu:24.04 bash /repo/tests/container.sh ss
 - Ubuntu 24.04 or newer (a package missing from your release is skipped with a `[!!]` line)
 - `sudo` for packages; without it the SSH script still installs Starship, the zsh plugins and the config in your home folder
 - Internet access to the Ubuntu archive, GitHub and starship.rs
-- atuin is installed on x86_64 and arm64 only, tldr also on 32-bit ARM
+- Release binaries are available for x86_64, arm64 and 32-bit ARM (no atuin on 32-bit ARM)
 
 ## Undo
 
