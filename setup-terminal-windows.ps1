@@ -311,7 +311,8 @@ if (Get-Command atuin -ErrorAction Ignore) {
   # Une seule fois, tant que la base d'atuin est vide : l'historique PowerShell existant y entre
   $historique = Join-Path $env:APPDATA 'Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
   $env:ATUIN_SESSION = atuin uuid
-  if ((Test-Path $historique) -and (Get-Item $historique).Length -gt 0 -and -not (atuin search --limit 1 --cmd-only 2>$null)) {
+  $dejaRemplie = atuin search --limit 1 --cmd-only 2>$null
+  if ((Test-Path $historique) -and (Get-Item $historique).Length -gt 0 -and -not $dejaRemplie) {
     atuin import powershell *> $null
     if ($LASTEXITCODE -eq 0) {
       Write-Host "[ok] historique PowerShell importé dans atuin"
