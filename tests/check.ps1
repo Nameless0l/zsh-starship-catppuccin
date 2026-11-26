@@ -70,9 +70,12 @@ if (Has atuin) {
 if (($keys | Where-Object { $_ -like 'Enter =>*' }) -match 'CustomAction') { Pass 'transient prompt on Enter' } else { Fail 'no transient prompt on Enter' }
 
 if (Has starship) {
-  Push-Location $env:TEMP
+  # An empty folder: starship times out scanning a crowded TEMP
+  $empty = New-Item -ItemType Directory -Force (Join-Path $env:TEMP "starship-check-$PID")
+  Push-Location $empty
   $warnings = starship prompt 2>&1 | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] } | Out-String
   Pop-Location
+  Remove-Item $empty
   Check $warnings.Trim() '' 'starship prompt without warnings'
 }
 

@@ -90,6 +90,15 @@ function Install-Config($source, $cible) {
   Remove-Item $tmp -ErrorAction Ignore
 }
 
+# Clé $nom de l'objet JSON $objet : modifiée sur place si elle existe, ajoutée à la fin sinon
+function Edit-Cle($objet, $nom, $valeur) {
+  if ($objet.PSObject.Properties[$nom]) {
+    $objet.$nom = $valeur
+  } else {
+    $objet | Add-Member -NotePropertyName $nom -NotePropertyValue $valeur
+  }
+}
+
 # Premier groupe de la première ligne de $lignes qui correspond à $motif
 function Get-Capture($lignes, $motif) {
   $m = $lignes | Select-String -Pattern $motif | Select-Object -First 1
@@ -219,21 +228,21 @@ foreach ($fichier in $reglages) {
   $avant = $d | ConvertTo-Json -Depth 100
 
   $schemas = @(@($d.schemes) | Where-Object { $_ -and $_.name -ne $Schema.name }) + [pscustomobject]$Schema
-  $d | Add-Member -Force -NotePropertyName schemes -NotePropertyValue $schemas
+  Edit-Cle $d schemes $schemas
 
   if ($null -eq $d.profiles) {
-    $d | Add-Member -Force -NotePropertyName profiles -NotePropertyValue ([pscustomobject]@{})
+    Edit-Cle $d profiles ([pscustomobject]@{})
   } elseif ($d.profiles -is [array]) {
     $d.profiles = [pscustomobject]@{ defaults = [pscustomobject]@{}; list = $d.profiles }
   }
   $profils = $d.profiles
   if ($null -eq $profils.defaults) {
-    $profils | Add-Member -Force -NotePropertyName defaults -NotePropertyValue ([pscustomobject]@{})
+    Edit-Cle $profils defaults ([pscustomobject]@{})
   }
   if ($null -eq $profils.defaults.font) {
-    $profils.defaults | Add-Member -Force -NotePropertyName font -NotePropertyValue ([pscustomobject]@{})
+    Edit-Cle $profils.defaults font ([pscustomobject]@{})
   }
-  $profils.defaults.font | Add-Member -Force -NotePropertyName face -NotePropertyValue $Police
+  Edit-Cle $profils.defaults.font face $Police
 
   $liste = @(@($profils.list) | Where-Object { $_ })
   $pwshProfil = $liste | Where-Object { $_.source -eq 'Windows.Terminal.PowershellCore' } | Select-Object -First 1
@@ -244,15 +253,15 @@ foreach ($fichier in $reglages) {
   }
   foreach ($p in $liste) {
     if ($p.source -eq 'Windows.Terminal.PowershellCore' -or $p.guid -eq $WindowsPowerShell) {
-      $p | Add-Member -Force -NotePropertyName colorScheme -NotePropertyValue $Schema.name
+      Edit-Cle $p colorScheme $Schema.name
     }
   }
-  $profils | Add-Member -Force -NotePropertyName list -NotePropertyValue $liste
+  Edit-Cle $profils list $liste
 
   # PowerShell 7 remplace Windows PowerShell ou cmd à l'ouverture, pas un autre choix comme WSL
   $parDefaut = ''
   if ($pwshProfil -and (-not $d.defaultProfile -or $d.defaultProfile -in $WindowsPowerShell, $Cmd)) {
-    $d | Add-Member -Force -NotePropertyName defaultProfile -NotePropertyValue $pwshProfil.guid
+    Edit-Cle $d defaultProfile $pwshProfil.guid
     $parDefaut = ', PowerShell 7 par défaut'
   }
 
