@@ -66,7 +66,8 @@ if (($keys | Where-Object { $_ -like 'Ctrl+t =>*' }) -match 'Fzf') { Pass 'Ctrl+
 if (Has atuin) {
   if (($keys | Where-Object { $_ -like 'Ctrl+r =>*' }) -match 'Atuin') { Pass 'Ctrl+R opens atuin' } else { Fail 'Ctrl+R does not open atuin' }
 }
-if (($keys | Where-Object { $_ -like 'Enter =>*' }) -match 'TransientPrompt') { Pass 'transient prompt on Enter' } else { Fail 'no transient prompt on Enter' }
+# Starship's transient prompt replaces AcceptLine on Enter with its own action
+if (($keys | Where-Object { $_ -like 'Enter =>*' }) -match 'CustomAction') { Pass 'transient prompt on Enter' } else { Fail 'no transient prompt on Enter' }
 
 if (Has starship) {
   Push-Location $env:TEMP

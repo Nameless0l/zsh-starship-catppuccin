@@ -102,6 +102,7 @@ if ($env:OS -ne 'Windows_NT') {
   Write-Host "Ce script est pour Windows. Sous Linux : setup-terminal.sh, setup-terminal-ssh.sh ou setup-terminal-wsl.sh."
   return
 }
+Sync-Chemin
 if (-not (Get-Command winget -ErrorAction Ignore)) {
   Write-Host "[!!] winget manque : installer App Installer depuis le Microsoft Store, puis relancer ce script."
   return
@@ -215,6 +216,7 @@ foreach ($fichier in $reglages) {
     continue
   }
   $d = $texte | ConvertFrom-Json
+  $avant = $d | ConvertTo-Json -Depth 100
 
   $schemas = @(@($d.schemes) | Where-Object { $_ -and $_.name -ne $Schema.name }) + [pscustomobject]$Schema
   $d | Add-Member -Force -NotePropertyName schemes -NotePropertyValue $schemas
@@ -255,7 +257,7 @@ foreach ($fichier in $reglages) {
   }
 
   $nouveau = $d | ConvertTo-Json -Depth 100
-  if ($nouveau -ne $texte.Trim()) {
+  if ($nouveau -ne $avant) {
     Save-Copie $fichier
     New-Item -ItemType Directory -Force (Split-Path $fichier) | Out-Null
     Set-Content -Path $fichier -Value $nouveau -Encoding utf8

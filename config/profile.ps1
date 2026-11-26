@@ -45,7 +45,9 @@ if (Get-Command starship -ErrorAction Ignore) {
 # PSReadLine n'est chargé que dans un terminal interactif
 if (Get-Module PSReadLine) {
   # Suggestions grisées tirées de l'historique (→ pour accepter), couleurs Catppuccin Mocha
-  Set-PSReadLineOption -PredictionSource History -PredictionViewStyle InlineView
+  if (-not [Console]::IsOutputRedirected) {
+    Set-PSReadLineOption -PredictionSource History -PredictionViewStyle InlineView
+  }
   Set-PSReadLineOption -MaximumHistoryCount 100000 -HistoryNoDuplicates -HistorySearchCursorMovesToEnd
   Set-PSReadLineOption -Colors @{
     Command                = '#89b4fa'
@@ -90,7 +92,7 @@ if (Get-Module PSReadLine) {
     }
     Import-Module PSFzf
     Set-PsFzfOption @raccourcis -TabCompletionPreviewWindow 'right|down|hidden'
-    Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+    Set-PSReadLineKeyHandler -Key Tab -BriefDescription FzfTabCompletion -Description 'Complétion dans fzf' -ScriptBlock { Invoke-FzfTabCompletion }
     Remove-Variable raccourcis
   }
 
