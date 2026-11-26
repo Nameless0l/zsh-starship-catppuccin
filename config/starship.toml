@@ -109,6 +109,7 @@ format = "[](fg:green)[ $symbol( $version) ]($style)[](fg:green) "
 when = 'test -n "$BUILDDIR"'
 command = 'basename "$BUILDDIR"'
 shell = ["sh"]
+os = "unix"
 symbol = ""
 style = "bg:blue fg:crust"
 format = "[](fg:blue)[ $symbol $output ]($style)[](fg:blue) "
