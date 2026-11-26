@@ -13,6 +13,7 @@ Comment se servir de chaque outil installé par les scripts. Tout est actif dans
 - [tmux : des sessions qui survivent](#tmux--des-sessions-qui-survivent)
 - [Surveiller la machine](#surveiller-la-machine)
 - [Lire le prompt](#lire-le-prompt)
+- [Sous Windows (PowerShell 7)](#sous-windows-powershell-7)
 - [Selon la machine](#selon-la-machine)
 
 ## Taper des commandes
@@ -362,6 +363,18 @@ Sans les icônes, il ressemble à ceci :
 À droite : la durée de la dernière commande quand elle dépasse 2 secondes, son code de retour quand il n'est pas `0`, le nombre de tâches en arrière-plan, une icône quand sudo ne redemandera pas le mot de passe, et l'heure.
 
 Une fois la commande validée, son prompt se réduit à `❯ commande`, ce qui garde l'historique de l'écran lisible.
+
+## Sous Windows (PowerShell 7)
+
+`setup-terminal-windows.ps1` installe PowerShell 7 à la place de zsh, avec le même prompt, les mêmes outils et les mêmes fichiers de config. L'essentiel de ce guide s'applique tel quel : `↑` et `↓`, les touches d'édition, l'espace en tête pour garder une commande hors de l'historique, `cd` et `cdi`, Ctrl+R dans atuin, Ctrl+T et Alt+C, les outils pour les fichiers et git, et le prompt.
+
+Ce qui change :
+
+- les suggestions grisées viennent de l'historique seulement : `→` les accepte, `Ctrl+→` en prend un mot ;
+- `Tab` ouvre les complétions dans fzf avec un aperçu à droite, et `Ctrl+/` le passe en dessous ou le cache ;
+- un nom de dossier tapé seul n'y entre pas, il faut `cd` ;
+- pas de tmux, btop, nvtop ni pages man en couleur. Windows Terminal a des onglets et des panneaux à la place : `Ctrl+Shift+T` ouvre un onglet, `Alt+Shift+D` coupe le panneau, `Alt+flèches` passe d'un panneau à l'autre, `Ctrl+Shift+W` en ferme un ;
+- les réglages perso vont dans `profile.local.ps1`, à côté du profil : `notepad (Join-Path (Split-Path $PROFILE) profile.local.ps1)`. Pour recharger : `. $PROFILE`.
 
 ## Selon la machine
 

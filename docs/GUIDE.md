@@ -13,6 +13,7 @@ How to use each tool the scripts install. Everything works in a terminal opened 
 - [tmux: sessions that survive](#tmux-sessions-that-survive)
 - [Watching the machine](#watching-the-machine)
 - [Reading the prompt](#reading-the-prompt)
+- [On Windows (PowerShell 7)](#on-windows-powershell-7)
 - [Per machine](#per-machine)
 
 ## Typing commands
@@ -362,6 +363,18 @@ On the left:
 On the right: the last command's duration when it took more than 2 seconds, its exit code when it is not `0`, the number of background jobs, an icon while sudo will not ask for the password again, and the time.
 
 Once a command runs, its prompt shrinks to `❯ command`, which keeps the screen history readable.
+
+## On Windows (PowerShell 7)
+
+`setup-terminal-windows.ps1` sets up PowerShell 7 instead of zsh, with the same prompt, tools and config files. Most of this guide applies as is: `↑` and `↓`, the editing keys, a leading space to keep a command out of the history, `cd` and `cdi`, Ctrl+R in atuin, Ctrl+T and Alt+C, the file and git tools, and the prompt.
+
+What changes:
+
+- gray suggestions come from the history only: `→` accepts them, `Ctrl+→` takes one word;
+- `Tab` opens the completions in fzf with a preview on the right, and `Ctrl+/` moves it below or hides it;
+- a folder name typed alone does not enter it, `cd` is needed;
+- no tmux, btop, nvtop or colored man pages. Windows Terminal has tabs and panes instead: `Ctrl+Shift+T` opens a tab, `Alt+Shift+D` splits the pane, `Alt+arrows` move between panes, `Ctrl+Shift+W` closes one;
+- personal settings go in `profile.local.ps1`, next to the profile: `notepad (Join-Path (Split-Path $PROFILE) profile.local.ps1)`. Reload with `. $PROFILE`.
 
 ## Per machine
 

@@ -1,14 +1,15 @@
-# Terminal Zsh + Starship pour Ubuntu, WSL et SSH (Catppuccin, icônes Material pour eza)
+# Terminal Zsh + Starship pour Ubuntu, WSL et SSH, et PowerShell sous Windows (Catppuccin, icônes Material pour eza)
 
 [![test](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml/badge.svg)](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml)
 
 Un script qui transforme un terminal Ubuntu neuf en poste de travail rapide et agréable : **Zsh**, un prompt **Starship** sur deux lignes aux couleurs **Catppuccin Mocha**, **fzf** partout, **zoxide** à la place de `cd`, des outils modernes (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**, **tmux**, **atuin**, **tldr**) et des icônes de fichiers qui ressemblent au **Material Icon Theme de VS Code**.
 
-Trois versions de la même config :
+Quatre versions de la même config :
 
 - `setup-terminal.sh` pour **Ubuntu avec bureau GNOME**, avec terminal déroulant et extensions GNOME au choix
 - `setup-terminal-wsl.sh` pour **WSL** (Ubuntu sous Windows, Windows Terminal)
 - `setup-terminal-ssh.sh` pour un **serveur ou une carte** atteints en SSH (Ubuntu ou Debian), fonctionne avec ou sans sudo, et aussi en root
+- `setup-terminal-windows.ps1` pour **Windows** lui-même : PowerShell 7 dans Windows Terminal, avec le même prompt, les mêmes outils et les mêmes fichiers de config (sans zsh)
 
 Chaque script peut être relancé sans risque : tout fichier remplacé est d'abord sauvegardé en `fichier.bak-AAAAMMJJ-HHMMSS`.
 
@@ -40,19 +41,29 @@ Serveur en SSH :
 bash <(curl -fsSL https://raw.githubusercontent.com/Nameless0l/zsh-starship-catppuccin/main/setup-terminal-ssh.sh)
 ```
 
+Windows, dans PowerShell (celui fourni avec Windows suffit, le script installe PowerShell 7) :
+
+```powershell
+irm https://raw.githubusercontent.com/Nameless0l/zsh-starship-catppuccin/main/setup-terminal-windows.ps1 | iex
+```
+
+Les outils viennent de winget. Windows demande d'autoriser les installations qui ont besoin des droits administrateur, comme PowerShell 7 et la police.
+
 Il suffit ensuite d'ouvrir un nouveau terminal. Les icônes demandent une **Nerd Font** dans le terminal où s'affiche le shell :
 
 - Ubuntu avec GNOME : JetBrainsMono Nerd Font est installée et appliquée à Ptyxis automatiquement (Medium, taille 13), avec une palette de couleurs Catppuccin Mocha.
 - WSL : sous Windows, `winget install -e --id DEVCOM.JetBrainsMonoNerdFont` installe la police. Le script règle ensuite cette police et le jeu de couleurs Catppuccin Mocha dans le `settings.json` de Windows Terminal, après une sauvegarde. Si ce fichier contient des commentaires, il n'y touche pas : la police et les couleurs se règlent alors dans Paramètres, Profils, Apparence.
+- Windows : le script installe JetBrainsMono Nerd Font avec winget et la règle dans Windows Terminal, avec le même jeu de couleurs Catppuccin Mocha sur les profils PowerShell.
 - SSH : la Nerd Font s'installe sur l'ordinateur **depuis** lequel on se connecte, pas sur le serveur.
 
 ## Ce que ça apporte
 
 L'usage au quotidien de chaque outil, avec des exemples : **[guide d'utilisation](docs/GUIDE.fr.md)**.
 
-- **Couleurs du terminal** : une palette `Catppuccin Mocha` est ajoutée à Ptyxis et appliquée à tous ses profils, à la place du fond aubergine d'Ubuntu. Sous WSL, le même jeu de couleurs est appliqué aux profils Ubuntu de Windows Terminal.
+- **Couleurs du terminal** : une palette `Catppuccin Mocha` est ajoutée à Ptyxis et appliquée à tous ses profils, à la place du fond aubergine d'Ubuntu. Sous WSL, le même jeu de couleurs est appliqué aux profils Ubuntu de Windows Terminal. Sous Windows, il va sur les profils PowerShell, et Windows Terminal s'ouvre ensuite sur PowerShell 7 s'il s'ouvrait sur Windows PowerShell ou l'invite de commandes.
 - **Prompt Starship** sur deux lignes avec cadre, pastilles arrondies, statut git détaillé, versions des langages, durée des commandes, heure, pastille **Yocto** quand l'environnement BitBake est chargé, et **prompt transitoire** qui réduit les anciens prompts à `❯ commande`.
 - **Zsh** : historique de 100 000 lignes partagé et daté, suggestions grisées, coloration syntaxique, **fzf-tab** sur Tab, `cd` remplacé par zoxide (`cd doc` saute dans un dossier déjà visité, `cdi` pour choisir), `↑` et `↓` filtrés par le début de la ligne déjà tapé, raccourcis Ctrl+flèches, Ctrl+Retour arrière, Début et Fin, pages man en couleur.
+- **PowerShell 7** (Windows) : le même prompt Starship, les suggestions grisées de PSReadLine (`→` pour accepter, `Ctrl+→` pour un mot), la coloration Catppuccin, `↑` et `↓` filtrés par le début de la ligne, Tab dans fzf avec aperçu grâce à PSFzf (`Ctrl+/` le déplace ou le cache), Ctrl+T et Alt+C, zoxide, atuin sur Ctrl+R avec l'historique PowerShell importé une fois, et les mêmes outils avec les mêmes fichiers de config. Pas de tmux, btop ni nvtop : les onglets et panneaux de Windows Terminal remplacent tmux. Les réglages perso vont dans `profile.local.ps1`, à côté du profil (`Split-Path $PROFILE`), que le script ne touche jamais.
 - **Outils** : `ls`, `ll`, `la`, `lt` avec eza, `cat` avec bat, `fd` et `rg` pour chercher, delta pour `git diff`, `lg` pour lazygit, btop au thème Catppuccin, nvtop, fastfetch, glow, hyperfine.
 - **tmux** : `t` ouvre la session `main` ou la rejoint, elle survit donc à une coupure SSH. Barre Catppuccin en haut, souris, `Ctrl+B |` et `Ctrl+B -` pour couper dans le dossier courant, Alt+flèches pour changer de panneau.
 - **atuin** : l'historique dans une base locale, Ctrl+R pour y chercher (recherche floue, avec le dossier et le code de retour de chaque commande). L'historique zsh existant est importé une fois, et `↑` garde sa recherche par préfixe. Synchronisation chiffrée entre machines au choix : `atuin register`, puis `atuin login` sur les autres.
@@ -88,11 +99,11 @@ Les autres outils sont montrés dans le [guide d'utilisation](docs/GUIDE.fr.md).
 
 ## Fichiers de config
 
-Les trois scripts partagent les mêmes fichiers dans `config/` : `zshrc`, `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` et `tealdeer.toml`, plus `eza/theme.yml`. Ils les copient depuis le clone d'où ils sont lancés, ou les téléchargent depuis ce dépôt quand ils passent par `curl`. Un fichier installé n'est sauvegardé puis remplacé que si son contenu a changé.
+Les scripts partagent les mêmes fichiers dans `config/` : `zshrc` (`profile.ps1` sous Windows), `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` et `tealdeer.toml`, plus `eza/theme.yml`. Ils les copient depuis le clone d'où ils sont lancés, ou les téléchargent depuis ce dépôt quand ils passent par `curl`. Un fichier installé n'est sauvegardé puis remplacé que si son contenu a changé. Sous Windows, chaque fichier va là où son outil le cherche sur ce système.
 
 ## Tests
 
-À chaque push, `tests/lint.sh` vérifie la syntaxe bash et zsh, shellcheck et les fichiers TOML, puis chaque script tourne deux fois dans un conteneur neuf : le script SSH sur Ubuntu 24.04 et Debian 12 en root et sur Ubuntu 24.04 sans sudo, le script WSL sur Ubuntu 24.04 et le script bureau sur Ubuntu 26.04 avec sudo. `tests/check.sh` contrôle ensuite les fichiers installés, les raccourcis zsh, le thème eza, tmux, atuin et tldr, et que le second passage n'a rien changé. Les mêmes tests repassent chaque lundi, car les scripts prennent la dernière version de plusieurs outils.
+À chaque push, `tests/lint.sh` vérifie la syntaxe bash, zsh et PowerShell, shellcheck, PSScriptAnalyzer et les fichiers TOML, puis chaque script tourne deux fois dans un conteneur neuf : le script SSH sur Ubuntu 24.04 et Debian 12 en root et sur Ubuntu 24.04 sans sudo, le script WSL sur Ubuntu 24.04 et le script bureau sur Ubuntu 26.04 avec sudo. `tests/check.sh` contrôle ensuite les fichiers installés, les raccourcis zsh, le thème eza, tmux, atuin et tldr, et que le second passage n'a rien changé. Le script Windows tourne deux fois sur Windows Server 2025, lancé depuis Windows PowerShell 5.1, et `tests/check.ps1` y contrôle les mêmes points, plus les raccourcis PowerShell et les réglages de Windows Terminal. Les mêmes tests repassent chaque lundi, car les scripts prennent la dernière version de plusieurs outils.
 
 Pour en lancer un en local :
 
@@ -102,7 +113,9 @@ docker run --rm -v "$PWD:/repo:ro" ubuntu:24.04 bash /repo/tests/container.sh ss
 
 ## Revenir en arrière
 
-Chaque fichier remplacé a une copie `.bak-...` datée à côté de lui. Il suffit de la remettre en place. Pour revenir à bash : `chsh -s /bin/bash`.
+Chaque fichier remplacé a une copie `.bak-...` datée à côté de lui. Il suffit de la remettre en place. Pour revenir à bash : `chsh -s /bin/bash`. Sous Windows, le profil PowerShell, `%APPDATA%\eza\theme.yml`, le `settings.json` de Windows Terminal et les autres fichiers de config ont la même copie `.bak-...`.
+
+Depuis un clone, Windows PowerShell bloque les scripts par défaut : `powershell -ExecutionPolicy Bypass -File .\setup-terminal-windows.ps1`. La ligne `irm ... | iex` n'est pas concernée.
 
 Si tmux garde son ancien look, c'est qu'un `~/.tmux.conf` passe devant `~/.config/tmux/tmux.conf` : le renommer, puis lancer `tmux kill-server`. Pour retrouver la recherche d'historique de fzf sur Ctrl+R, il suffit de supprimer atuin : `rm ~/.local/bin/atuin`.
 

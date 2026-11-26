@@ -1,14 +1,15 @@
-# Zsh + Starship terminal setup for Ubuntu, WSL and SSH (Catppuccin, eza Material icons)
+# Zsh + Starship terminal setup for Ubuntu, WSL and SSH, plus PowerShell on Windows (Catppuccin, eza Material icons)
 
 [![test](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml/badge.svg)](https://github.com/Nameless0l/zsh-starship-catppuccin/actions/workflows/test.yml)
 
 One script to turn a fresh Ubuntu terminal into a fast, good-looking and keyboard-friendly workspace: **Zsh**, a two-line **Starship** prompt in **Catppuccin Mocha**, **fzf** everywhere, **zoxide** smart `cd`, modern CLI tools (**eza**, **bat**, **fd**, **ripgrep**, **delta**, **lazygit**, **btop**, **tmux**, **atuin**, **tldr**) and file icons that look like the **VS Code Material Icon Theme**.
 
-Three flavours of the same config:
+Four flavours of the same config:
 
 - `setup-terminal.sh` for **Ubuntu desktop (GNOME)**, with a drop-down terminal and optional GNOME extensions
 - `setup-terminal-wsl.sh` for **WSL** (Ubuntu on Windows, Windows Terminal)
 - `setup-terminal-ssh.sh` for **headless servers and boards** reached over SSH (Ubuntu or Debian), works as a normal user with or without sudo, or as root
+- `setup-terminal-windows.ps1` for **Windows** itself: PowerShell 7 in Windows Terminal, with the same prompt, tools and config files (no zsh)
 
 Every script can be run again safely: each file it replaces is first saved as `file.bak-YYYYMMDD-HHMMSS`.
 
@@ -40,10 +41,19 @@ Server over SSH:
 bash <(curl -fsSL https://raw.githubusercontent.com/Nameless0l/zsh-starship-catppuccin/main/setup-terminal-ssh.sh)
 ```
 
+Windows, in PowerShell (the Windows PowerShell that comes with Windows is enough, the script installs PowerShell 7):
+
+```powershell
+irm https://raw.githubusercontent.com/Nameless0l/zsh-starship-catppuccin/main/setup-terminal-windows.ps1 | iex
+```
+
+The tools come from winget. Windows asks to allow the installers that need administrator rights, such as PowerShell 7 and the font.
+
 Then open a new terminal. Icons need a **Nerd Font** in the terminal you are looking at:
 
 - Ubuntu desktop: JetBrainsMono Nerd Font is installed and applied to Ptyxis automatically (Medium, size 13), together with a Catppuccin Mocha color palette.
 - WSL: on Windows, run `winget install -e --id DEVCOM.JetBrainsMonoNerdFont`. The script then sets this font and a Catppuccin Mocha color scheme in Windows Terminal's `settings.json` (backed up first). If that file contains comments it is left untouched: set the font and color scheme in Settings, Profiles, Appearance.
+- Windows: the script installs JetBrainsMono Nerd Font with winget and sets it in Windows Terminal, with the same Catppuccin Mocha scheme on the PowerShell profiles.
 - SSH: install a Nerd Font on the computer you connect **from**, not on the server.
 
 ## What you get
@@ -54,6 +64,7 @@ Day-to-day use of every tool, with examples: **[user guide](docs/GUIDE.md)**.
 
 - **Ptyxis** (Ubuntu desktop): a `Catppuccin Mocha` palette is added to `~/.local/share/org.gnome.Ptyxis/palettes/` and applied to every profile, replacing Ubuntu's aubergine background.
 - **Windows Terminal** (WSL): the official Catppuccin Mocha scheme is added and applied to the Ubuntu and WSL profiles.
+- **Windows Terminal** (Windows): the same scheme on the PowerShell profiles. Windows Terminal then opens PowerShell 7, when it opened Windows PowerShell or Command Prompt before.
 
 ### Starship prompt (Catppuccin Mocha)
 
@@ -74,6 +85,15 @@ Day-to-day use of every tool, with examples: **[user guide](docs/GUIDE.md)**.
 - Ctrl+← / Ctrl+→ by word, Ctrl+Backspace and Ctrl+Delete delete a word, Home and End work, Ctrl+X Ctrl+E edits the command in your editor
 - Colored man pages
 - Your own aliases and functions go in `~/.zshrc.local`, which the scripts never touch
+
+### PowerShell 7 (Windows)
+
+- The same Starship prompt, transient prompt included
+- **PSReadLine**: gray suggestions from the history (`→` accepts, `Ctrl+→` takes one word), Catppuccin syntax colors, `↑` and `↓` prefix search, Ctrl+X Ctrl+E, `" command"` not saved
+- **PSFzf**: Tab opens fzf with a preview (`Ctrl+/` moves or hides it), Ctrl+T and Alt+C as on Linux
+- zoxide replaces `cd`, atuin answers Ctrl+R and imports your PowerShell history once, and `ls`, `ll`, `la`, `lt`, `cat`, `lg`, fd, rg, delta, glow, fastfetch, hyperfine and tldr work as on Linux, with the same config files
+- No tmux, btop or nvtop: Windows Terminal tabs and panes stand in for tmux
+- Your own aliases and functions go in `profile.local.ps1`, next to the profile (`Split-Path $PROFILE`), which the script never touches
 
 ### Modern command-line tools
 
@@ -143,11 +163,11 @@ The other tools are shown in the [user guide](docs/GUIDE.md).
 
 ## Config files
 
-The three scripts share the same files in `config/`: `zshrc`, `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` and `tealdeer.toml`, plus `eza/theme.yml`. They copy them from the clone they run from, or download them from this repository when run through `curl`. An installed file is backed up and replaced only when its content changed.
+The scripts share the same files in `config/`: `zshrc` (`profile.ps1` on Windows), `starship.toml`, `lazygit.yml`, `tmux.conf`, `atuin/` and `tealdeer.toml`, plus `eza/theme.yml`. They copy them from the clone they run from, or download them from this repository when run through `curl`. An installed file is backed up and replaced only when its content changed. On Windows, each file goes where its tool looks for it there.
 
 ## Tests
 
-Every push runs `tests/lint.sh` (bash and zsh syntax, shellcheck, TOML) and then each script twice in a fresh container: the SSH script on Ubuntu 24.04 and Debian 12 as root and on Ubuntu 24.04 without sudo, the WSL script on Ubuntu 24.04 and the desktop script on Ubuntu 26.04 with sudo. `tests/check.sh` then checks the installed files, the zsh key bindings, the eza theme, tmux, atuin and tldr, and that the second run changed nothing. The same run happens every Monday, since the scripts fetch the latest releases of several tools.
+Every push runs `tests/lint.sh` (bash, zsh and PowerShell syntax, shellcheck, PSScriptAnalyzer, TOML) and then each script twice in a fresh container: the SSH script on Ubuntu 24.04 and Debian 12 as root and on Ubuntu 24.04 without sudo, the WSL script on Ubuntu 24.04 and the desktop script on Ubuntu 26.04 with sudo. `tests/check.sh` then checks the installed files, the zsh key bindings, the eza theme, tmux, atuin and tldr, and that the second run changed nothing. The Windows script runs twice on Windows Server 2025, started from Windows PowerShell 5.1, and `tests/check.ps1` checks the same things there, plus the PowerShell key bindings and the Windows Terminal settings. The same run happens every Monday, since the scripts fetch the latest releases of several tools.
 
 To run one locally:
 
@@ -161,10 +181,11 @@ docker run --rm -v "$PWD:/repo:ro" ubuntu:24.04 bash /repo/tests/container.sh ss
 - `sudo` for packages; without it the SSH script still installs Starship, the zsh plugins and the config in your home folder
 - Internet access to the Ubuntu archive, GitHub and starship.rs
 - Release binaries are available for x86_64, arm64 and 32-bit ARM (no atuin on 32-bit ARM)
+- Windows 10 or 11 with winget (App Installer, from the Microsoft Store if it is missing)
 
 ## Undo
 
-Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.config/starship.toml`, `~/.config/eza/theme.yml`, `~/.config/lazygit/config.yml`, `~/.config/tmux/tmux.conf`, `~/.config/atuin/config.toml`, `~/.config/tealdeer/config.toml`). Copy it back to return to your previous setup. To go back to bash: `chsh -s /bin/bash`.
+Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.config/starship.toml`, `~/.config/eza/theme.yml`, `~/.config/lazygit/config.yml`, `~/.config/tmux/tmux.conf`, `~/.config/atuin/config.toml`, `~/.config/tealdeer/config.toml`). Copy it back to return to your previous setup. To go back to bash: `chsh -s /bin/bash`. On Windows, the PowerShell profile, `%APPDATA%\eza\theme.yml`, Windows Terminal's `settings.json` and the other config files get the same `.bak-...` copy.
 
 ## FAQ
 
@@ -176,11 +197,13 @@ Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.conf
 
 **tmux keeps its old look.** A `~/.tmux.conf` takes priority over `~/.config/tmux/tmux.conf`: rename it, then run `tmux kill-server`.
 
+**Windows blocks the script when run from a clone.** Windows PowerShell blocks scripts by default: `powershell -ExecutionPolicy Bypass -File .\setup-terminal-windows.ps1`. The `irm ... | iex` line is not affected.
+
 **I prefer the fzf history search.** Remove atuin (`rm ~/.local/bin/atuin`): Ctrl+R goes back to fzf.
 
 ## Credits
 
-[Starship](https://starship.rs), [Catppuccin](https://catppuccin.com), [eza](https://github.com/eza-community/eza), [Nerd Fonts](https://www.nerdfonts.com), [fzf](https://github.com/junegunn/fzf), [fzf-tab](https://github.com/Aloxaf/fzf-tab), [zoxide](https://github.com/ajeetdsouza/zoxide), [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme) for the icon colors, [tmux](https://github.com/tmux/tmux) with [catppuccin/tmux](https://github.com/catppuccin/tmux), [atuin](https://atuin.sh) with [catppuccin/atuin](https://github.com/catppuccin/atuin), [tealdeer](https://github.com/tealdeer-rs/tealdeer) and the [tldr pages](https://tldr.sh), [Quake Terminal](https://github.com/diegodario88/quake-terminal), [Tiling Shell](https://github.com/domferr/tilingshell), [Astra Monitor](https://github.com/AstraExt/astra-monitor).
+[Starship](https://starship.rs), [Catppuccin](https://catppuccin.com), [eza](https://github.com/eza-community/eza), [Nerd Fonts](https://www.nerdfonts.com), [fzf](https://github.com/junegunn/fzf), [fzf-tab](https://github.com/Aloxaf/fzf-tab), [PSReadLine](https://github.com/PowerShell/PSReadLine), [PSFzf](https://github.com/kelleyma49/PSFzf), [zoxide](https://github.com/ajeetdsouza/zoxide), [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions), [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting), [Material Icon Theme](https://github.com/material-extensions/vscode-material-icon-theme) for the icon colors, [tmux](https://github.com/tmux/tmux) with [catppuccin/tmux](https://github.com/catppuccin/tmux), [atuin](https://atuin.sh) with [catppuccin/atuin](https://github.com/catppuccin/atuin), [tealdeer](https://github.com/tealdeer-rs/tealdeer) and the [tldr pages](https://tldr.sh), [Quake Terminal](https://github.com/diegodario88/quake-terminal), [Tiling Shell](https://github.com/domferr/tilingshell), [Astra Monitor](https://github.com/AstraExt/astra-monitor).
 
 ## License
 
