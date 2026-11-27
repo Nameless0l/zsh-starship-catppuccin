@@ -100,9 +100,15 @@ if (Has atuin) {
   $config = (Capture (atuin info 2>$null) 'client config: "(.+)"') -replace '\\\\', '\'
   Same config/atuin/config.toml $config
   Same config/atuin/themes/catppuccin-mocha-mauve.toml (Join-Path (Split-Path $config) 'themes\catppuccin-mocha-mauve.toml')
-  $env:ATUIN_SESSION = atuin uuid
-  Check ((atuin search --cmd-only 'history-from-powershell' 2>&1 | Out-String).Trim()) 'echo history-from-powershell' 'PowerShell history imported into atuin'
-  Remove-Item Env:ATUIN_SESSION
+  # tests/windows.ps1 seeds this line, so the check only runs there and never prints a real history
+  $marker = 'echo history-from-powershell'
+  $history = Join-Path $env:APPDATA 'Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt'
+  if ((Test-Path $history) -and (Select-String -Path $history -SimpleMatch $marker -Quiet)) {
+    $env:ATUIN_SESSION = atuin uuid
+    $found = atuin search --cmd-only --search-mode prefix $marker 2>$null
+    Remove-Item Env:ATUIN_SESSION
+    if (@($found) -contains $marker) { Pass 'PowerShell history imported into atuin' } else { Fail 'PowerShell history not imported into atuin' }
+  }
 }
 
 if (Has tldr) {
