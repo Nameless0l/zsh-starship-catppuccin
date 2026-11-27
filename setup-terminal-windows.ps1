@@ -78,12 +78,16 @@ function Install-Config($source, $cible) {
     }
   }
   if ((Get-Item $tmp).Length -gt 0) {
-    New-Item -ItemType Directory -Force (Split-Path $cible) | Out-Null
-    if (-not (Test-Path $cible) -or (Get-FileHash $tmp).Hash -ne (Get-FileHash $cible).Hash) {
-      Save-Copie $cible
-      Copy-Item $tmp $cible -Force
+    try {
+      New-Item -ItemType Directory -Force (Split-Path $cible) -ErrorAction Stop | Out-Null
+      if (-not (Test-Path $cible) -or (Get-FileHash $tmp).Hash -ne (Get-FileHash $cible).Hash) {
+        Save-Copie $cible
+        Copy-Item $tmp $cible -Force -ErrorAction Stop
+      }
+      Write-Host "[ok] $cible"
+    } catch {
+      Write-Host "[!!] $cible non écrit : $($_.Exception.Message)"
     }
-    Write-Host "[ok] $cible"
   } else {
     Write-Host "[!!] $source non récupéré, $cible inchangé"
   }
@@ -169,14 +173,30 @@ if ($cles | Where-Object { (Test-Path $_) -and ((Get-Item $_).GetValueNames() -l
   Install-Paquet DEVCOM.JetBrainsMonoNerdFont
 }
 
+# L'accès contrôlé aux dossiers de Windows peut interdire Documents, où vont le profil et les modules
+$Profil = $PROFILE.CurrentUserCurrentHost
+$Documents = Split-Path $Profil
+$essai = Join-Path $Documents ".essai-$PID"
+try {
+  New-Item -ItemType Directory -Force $Documents -ErrorAction Stop | Out-Null
+  [IO.File]::WriteAllText($essai, '')
+  Remove-Item $essai
+  $DocumentsBloque = $false
+} catch {
+  $DocumentsBloque = $true
+}
+
 # ---------- PSFzf : Tab, Ctrl+T et Alt+C dans fzf ----------
 Write-Titre 'PSFzf'
 if (Get-Module -ListAvailable PSFzf) {
   Write-Host "[ok] PSFzf déjà installé"
+} elseif ($DocumentsBloque) {
+  Write-Host "[!!] PSFzf non installé : Windows bloque l'écriture dans $Documents"
 } else {
   try {
     if (Get-Command Install-PSResource -ErrorAction Ignore) {
-      Install-PSResource PSFzf -Scope CurrentUser -TrustRepository -Quiet -ErrorAction Stop
+      # Sans -Repository, MicrosoftArtifactRegistry passe avant PSGallery et répond Not Found
+      Install-PSResource PSFzf -Repository PSGallery -Scope CurrentUser -TrustRepository -Quiet -ErrorAction Stop
     } else {
       Install-Module PSFzf -Scope CurrentUser -Force -ErrorAction Stop
     }
@@ -246,7 +266,8 @@ foreach ($fichier in $reglages) {
 
   $liste = @(@($profils.list) | Where-Object { $_ })
   $pwshProfil = $liste | Where-Object { $_.source -eq 'Windows.Terminal.PowershellCore' } | Select-Object -First 1
-  if (-not $pwshProfil -and (Test-Path "$env:ProgramFiles\PowerShell\7\pwsh.exe")) {
+  # winget installe PowerShell 7 dans Program Files, ou en paquet MSIX pour l'utilisateur seul
+  if (-not $pwshProfil -and ((Test-Path "$env:ProgramFiles\PowerShell\7\pwsh.exe") -or $PSHOME -like '*\WindowsApps\Microsoft.PowerShell_*')) {
     # Profil que Windows Terminal ajoute à son prochain lancement, réglé dès maintenant
     $pwshProfil = [pscustomobject]@{ guid = $Pwsh7; name = 'PowerShell'; source = 'Windows.Terminal.PowershellCore' }
     $liste += $pwshProfil
@@ -281,8 +302,11 @@ Install-Config eza/theme.yml (Join-Path $env:APPDATA 'eza\theme.yml')
 
 # ---------- Profil PowerShell ----------
 Write-Titre 'Profil PowerShell'
-$Profil = $PROFILE.CurrentUserCurrentHost
-Install-Config config/profile.ps1 $Profil
+if ($DocumentsBloque) {
+  Write-Host "[!!] $Profil non écrit : Windows bloque l'écriture dans $Documents"
+} else {
+  Install-Config config/profile.ps1 $Profil
+}
 
 # ---------- Starship (prompt deux lignes, Catppuccin Mocha) ----------
 Write-Titre 'starship.toml'
@@ -354,12 +378,19 @@ if (Get-Command tldr -ErrorAction Ignore) {
 }
 
 Write-Titre 'Terminé'
+if ($DocumentsBloque) {
+  Write-Host "[!!] L'accès contrôlé aux dossiers empêche PowerShell 7 d'écrire dans Documents. Pour l'autoriser :"
+  Write-Host "     Sécurité Windows > Protection contre les virus et menaces > Gérer la protection contre les ransomware"
+  Write-Host "     > Autoriser une application via l'Accès contrôlé aux dossiers > Ajouter une application autorisée"
+  Write-Host "     > Applications récemment bloquées : pwsh.exe. Puis relancer ce script."
+  return
+}
 Write-Host "Ouvrir un nouvel onglet Windows Terminal : PowerShell 7 démarre avec le prompt et les outils."
 if ($WtManuel) {
   Write-Host "Dans le terminal : police $Police et jeu de couleurs Catppuccin Mocha, à choisir dans ses paramètres."
 }
 Write-Host "À essayer : Ctrl+R cherche dans l'historique (atuin), Tab complète dans fzf, tldr tar donne des exemples."
-$ProfilLocal = Join-Path (Split-Path $Profil) 'profile.local.ps1'
+$ProfilLocal = Join-Path $Documents 'profile.local.ps1'
 if (-not (Test-Path $ProfilLocal)) {
   Write-Host "Les alias et fonctions personnels vont dans $ProfilLocal : le script ne le touche jamais."
 }
