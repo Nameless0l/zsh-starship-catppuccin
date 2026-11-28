@@ -117,6 +117,8 @@ Chaque fichier remplacé a une copie `.bak-...` datée à côté de lui. Il suff
 
 Depuis un clone, Windows PowerShell bloque les scripts par défaut : `powershell -ExecutionPolicy Bypass -File .\setup-terminal-windows.ps1`. La ligne `irm ... | iex` n'est pas concernée.
 
+Si le script signale que Windows bloque l'écriture dans Documents, l'Accès contrôlé aux dossiers est actif. Cette protection contre les ransomware de Sécurité Windows ne fait pas confiance à PowerShell 7, qui range son profil et ses modules dans Documents. Il faut autoriser `pwsh.exe` dans Sécurité Windows, Protection contre les virus et menaces, Gérer la protection contre les ransomware, Autoriser une application via l'Accès contrôlé aux dossiers, Ajouter une application autorisée, Applications récemment bloquées, puis relancer le script. Tout script PowerShell 7 peut alors écrire dans Documents. La version Microsoft Store de PowerShell 7 a son numéro de version dans son chemin : après une mise à jour, il faut l'autoriser de nouveau avant de relancer le script.
+
 Si tmux garde son ancien look, c'est qu'un `~/.tmux.conf` passe devant `~/.config/tmux/tmux.conf` : le renommer, puis lancer `tmux kill-server`. Pour retrouver la recherche d'historique de fzf sur Ctrl+R, il suffit de supprimer atuin : `rm ~/.local/bin/atuin`.
 
 ## Licence

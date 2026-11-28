@@ -199,6 +199,8 @@ Every replaced file has a dated `.bak-...` copy next to it (`~/.zshrc`, `~/.conf
 
 **Windows blocks the script when run from a clone.** Windows PowerShell blocks scripts by default: `powershell -ExecutionPolicy Bypass -File .\setup-terminal-windows.ps1`. The `irm ... | iex` line is not affected.
 
+**The script reports that Windows blocks writing to Documents.** Controlled folder access, the ransomware protection in Windows Security, is on and does not trust PowerShell 7, which keeps its profile and modules in Documents. Allow `pwsh.exe` in Windows Security, Virus & threat protection, Manage ransomware protection, Allow an app through Controlled folder access, Add an allowed app, Recently blocked apps, then run the script again. Any PowerShell 7 script can then write to Documents. PowerShell 7 from the Microsoft Store has its version number in its path: after an update, allow it again before running the script.
+
 **I prefer the fzf history search.** Remove atuin (`rm ~/.local/bin/atuin`): Ctrl+R goes back to fzf.
 
 ## Credits
