@@ -63,7 +63,7 @@ L'usage au quotidien de chaque outil, avec des exemples : **[guide d'utilisation
 - **Couleurs du terminal** : une palette `Catppuccin Mocha` est ajoutée à Ptyxis et appliquée à tous ses profils, à la place du fond aubergine d'Ubuntu. Sous WSL, le même jeu de couleurs est appliqué aux profils Ubuntu de Windows Terminal. Sous Windows, il va sur les profils PowerShell, et Windows Terminal s'ouvre ensuite sur PowerShell 7 s'il s'ouvrait sur Windows PowerShell ou l'invite de commandes.
 - **Prompt Starship** sur deux lignes avec cadre, pastilles arrondies, statut git détaillé, versions des langages, durée des commandes, heure, pastille **Yocto** quand l'environnement BitBake est chargé, et **prompt transitoire** qui réduit les anciens prompts à `❯ commande`.
 - **Zsh** : historique de 100 000 lignes partagé et daté, suggestions grisées, coloration syntaxique, **fzf-tab** sur Tab, `cd` remplacé par zoxide (`cd doc` saute dans un dossier déjà visité, `cdi` pour choisir), `↑` et `↓` filtrés par le début de la ligne déjà tapé, raccourcis Ctrl+flèches, Ctrl+Retour arrière, Début et Fin, pages man en couleur.
-- **PowerShell 7** (Windows) : le même prompt Starship, les suggestions grisées de PSReadLine (`→` pour accepter, `Ctrl+→` pour un mot), la coloration Catppuccin, `↑` et `↓` filtrés par le début de la ligne, Tab dans fzf avec aperçu grâce à PSFzf (`Ctrl+/` le déplace ou le cache), Ctrl+T et Alt+C, zoxide, atuin sur Ctrl+R avec l'historique PowerShell importé une fois, et les mêmes outils avec les mêmes fichiers de config. Pas de tmux, btop ni nvtop : les onglets et panneaux de Windows Terminal remplacent tmux. Les réglages perso vont dans `profile.local.ps1`, à côté du profil (`Split-Path $PROFILE`), que le script ne touche jamais.
+- **PowerShell 7** (Windows) : le même prompt Starship, les suggestions grisées de PSReadLine (`→` pour accepter, `Ctrl+→` pour un mot), la coloration Catppuccin, `↑` et `↓` filtrés par le début de la ligne, Tab dans fzf grâce à PSFzf (sans aperçu pour l'instant, [bug PSFzf](https://github.com/kelleyma49/PSFzf/issues/380)), Ctrl+T et Alt+C, zoxide, atuin sur Ctrl+R avec l'historique PowerShell importé une fois, et les mêmes outils avec les mêmes fichiers de config. Pas de tmux, btop ni nvtop : les onglets et panneaux de Windows Terminal remplacent tmux. Les réglages perso vont dans `profile.local.ps1`, à côté du profil (`Split-Path $PROFILE`), que le script ne touche jamais.
 - **Outils** : `ls`, `ll`, `la`, `lt` avec eza, `cat` avec bat, `fd` et `rg` pour chercher, delta pour `git diff`, `lg` pour lazygit, btop au thème Catppuccin, nvtop, fastfetch, glow, hyperfine.
 - **tmux** : `t` ouvre la session `main` ou la rejoint, elle survit donc à une coupure SSH. Barre Catppuccin en haut, souris, `Ctrl+B |` et `Ctrl+B -` pour couper dans le dossier courant, Alt+flèches pour changer de panneau.
 - **atuin** : l'historique dans une base locale, Ctrl+R pour y chercher (recherche floue, avec le dossier et le code de retour de chaque commande). L'historique zsh existant est importé une fois, et `↑` garde sa recherche par préfixe. Synchronisation chiffrée entre machines au choix : `atuin register`, puis `atuin login` sur les autres.
@@ -94,6 +94,14 @@ lazygit (`lg`) :
 tmux avec la barre Catppuccin (`t`) :
 
 ![tmux avec deux panneaux](docs/screenshots/tmux.png)
+
+Sous Windows, PowerShell 7 dans Windows Terminal, avec le même prompt et les mêmes outils :
+
+![Prompt PowerShell 7 et liste eza dans Windows Terminal](docs/screenshots/windows-prompt.png)
+
+Ctrl+T dans PowerShell, avec l'aperçu de bat :
+
+![Ctrl+T dans PowerShell : recherche de fichier avec l'aperçu de bat](docs/screenshots/windows-fzf.png)
 
 Les autres outils sont montrés dans le [guide d'utilisation](docs/GUIDE.fr.md).
 

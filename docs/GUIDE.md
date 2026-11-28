@@ -368,13 +368,23 @@ Once a command runs, its prompt shrinks to `❯ command`, which keeps the screen
 
 `setup-terminal-windows.ps1` sets up PowerShell 7 instead of zsh, with the same prompt, tools and config files. Most of this guide applies as is: `↑` and `↓`, the editing keys, a leading space to keep a command out of the history, `cd` and `cdi`, Ctrl+R in atuin, Ctrl+T and Alt+C, the file and git tools, and the prompt.
 
+![PowerShell 7 in Windows Terminal: the prompt after ll](screenshots/windows-prompt.png)
+
 What changes:
 
 - gray suggestions come from the history only: `→` accepts them, `Ctrl+→` takes one word;
-- `Tab` opens the completions in fzf with a preview on the right, and `Ctrl+/` moves it below or hides it;
+- `Tab` opens the completions in fzf, without a preview for now: PSFzf cannot start it on Windows ([PSFzf bug](https://github.com/kelleyma49/PSFzf/issues/380));
 - a folder name typed alone does not enter it, `cd` is needed;
 - no tmux, btop, nvtop or colored man pages. Windows Terminal has tabs and panes instead: `Ctrl+Shift+T` opens a tab, `Alt+Shift+D` splits the pane, `Alt+arrows` move between panes, `Ctrl+Shift+W` closes one;
 - personal settings go in `profile.local.ps1`, next to the profile: `notepad (Join-Path (Split-Path $PROFILE) profile.local.ps1)`. Reload with `. $PROFILE`.
+
+A gray suggestion from the history:
+
+![Gray suggestion in PowerShell after typing git lo](screenshots/windows-suggest.png)
+
+Ctrl+T, with the bat preview:
+
+![Ctrl+T in PowerShell: file search with a bat preview](screenshots/windows-fzf.png)
 
 ## Per machine
 

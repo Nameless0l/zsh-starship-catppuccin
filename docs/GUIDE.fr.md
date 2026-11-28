@@ -368,13 +368,23 @@ Une fois la commande validée, son prompt se réduit à `❯ commande`, ce qui g
 
 `setup-terminal-windows.ps1` installe PowerShell 7 à la place de zsh, avec le même prompt, les mêmes outils et les mêmes fichiers de config. L'essentiel de ce guide s'applique tel quel : `↑` et `↓`, les touches d'édition, l'espace en tête pour garder une commande hors de l'historique, `cd` et `cdi`, Ctrl+R dans atuin, Ctrl+T et Alt+C, les outils pour les fichiers et git, et le prompt.
 
+![PowerShell 7 dans Windows Terminal : le prompt après ll](screenshots/windows-prompt.png)
+
 Ce qui change :
 
 - les suggestions grisées viennent de l'historique seulement : `→` les accepte, `Ctrl+→` en prend un mot ;
-- `Tab` ouvre les complétions dans fzf avec un aperçu à droite, et `Ctrl+/` le passe en dessous ou le cache ;
+- `Tab` ouvre les complétions dans fzf, sans aperçu pour l'instant : PSFzf n'arrive pas à le lancer sous Windows ([bug PSFzf](https://github.com/kelleyma49/PSFzf/issues/380)) ;
 - un nom de dossier tapé seul n'y entre pas, il faut `cd` ;
 - pas de tmux, btop, nvtop ni pages man en couleur. Windows Terminal a des onglets et des panneaux à la place : `Ctrl+Shift+T` ouvre un onglet, `Alt+Shift+D` coupe le panneau, `Alt+flèches` passe d'un panneau à l'autre, `Ctrl+Shift+W` en ferme un ;
 - les réglages perso vont dans `profile.local.ps1`, à côté du profil : `notepad (Join-Path (Split-Path $PROFILE) profile.local.ps1)`. Pour recharger : `. $PROFILE`.
+
+Une suggestion grisée tirée de l'historique :
+
+![Suggestion grisée dans PowerShell après avoir tapé git lo](screenshots/windows-suggest.png)
+
+Ctrl+T, avec l'aperçu de bat :
+
+![Ctrl+T dans PowerShell : recherche de fichier avec l'aperçu de bat](screenshots/windows-fzf.png)
 
 ## Selon la machine
 

@@ -90,7 +90,7 @@ Day-to-day use of every tool, with examples: **[user guide](docs/GUIDE.md)**.
 
 - The same Starship prompt, transient prompt included
 - **PSReadLine**: gray suggestions from the history (`→` accepts, `Ctrl+→` takes one word), Catppuccin syntax colors, `↑` and `↓` prefix search, Ctrl+X Ctrl+E, `" command"` not saved
-- **PSFzf**: Tab opens fzf with a preview (`Ctrl+/` moves or hides it), Ctrl+T and Alt+C as on Linux
+- **PSFzf**: Tab opens the completions in fzf, Ctrl+T and Alt+C as on Linux. Tab has no preview yet ([PSFzf bug](https://github.com/kelleyma49/PSFzf/issues/380))
 - zoxide replaces `cd`, atuin answers Ctrl+R and imports your PowerShell history once, and `ls`, `ll`, `la`, `lt`, `cat`, `lg`, fd, rg, delta, glow, fastfetch, hyperfine and tldr work as on Linux, with the same config files
 - No tmux, btop or nvtop: Windows Terminal tabs and panes stand in for tmux
 - Your own aliases and functions go in `profile.local.ps1`, next to the profile (`Split-Path $PROFILE`), which the script never touches
@@ -158,6 +158,14 @@ lazygit (`lg`):
 tmux with the Catppuccin bar (`t`):
 
 ![tmux with two panes](docs/screenshots/tmux.png)
+
+On Windows, PowerShell 7 in Windows Terminal, with the same prompt and tools:
+
+![PowerShell 7 prompt and eza listing in Windows Terminal](docs/screenshots/windows-prompt.png)
+
+Ctrl+T in PowerShell, with a bat preview:
+
+![Ctrl+T in PowerShell: file search with a bat preview](docs/screenshots/windows-fzf.png)
 
 The other tools are shown in the [user guide](docs/GUIDE.md).
 

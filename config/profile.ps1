@@ -84,14 +84,15 @@ if (Get-Module PSReadLine) {
   # Ctrl+X puis Ctrl+E : éditer la commande dans l'éditeur ($env:EDITOR)
   Set-PSReadLineKeyHandler -Chord 'Ctrl+x,Ctrl+e' -Function ViEditVisually
 
-  # PSFzf : Tab ouvre fzf avec un aperçu, Ctrl+/ le déplace ou le cache
+  # PSFzf : Tab ouvre les complétions dans fzf, Ctrl+T et Alt+C avec leur aperçu
+  # L'aperçu de Tab échoue sous Windows (github.com/kelleyma49/PSFzf/issues/380) : il reste masqué
   if (Get-Module -ListAvailable PSFzf) {
     $raccourcis = @{ PSReadlineChordProvider = 'Ctrl+t'; PSReadlineChordSetLocation = 'Alt+c' }
     if (-not (Get-Command atuin -ErrorAction Ignore)) {
       $raccourcis.PSReadlineChordReverseHistory = 'Ctrl+r'
     }
     Import-Module PSFzf
-    Set-PsFzfOption @raccourcis -TabCompletionPreviewWindow 'right|down|hidden'
+    Set-PsFzfOption @raccourcis -TabCompletionPreviewWindow 'hidden|hidden'
     Set-PSReadLineKeyHandler -Key Tab -BriefDescription FzfTabCompletion -Description 'Complétion dans fzf' -ScriptBlock { Invoke-FzfTabCompletion }
     Remove-Variable raccourcis
   }

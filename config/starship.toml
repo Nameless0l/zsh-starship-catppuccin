@@ -34,6 +34,7 @@ format = "[](fg:mauve)[ $symbol ]($style)"
 
 [os.symbols]
 Ubuntu = ""
+Windows = ""
 
 [username]
 show_always = true
